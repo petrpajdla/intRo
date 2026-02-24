@@ -1,22 +1,20 @@
-### CAA 2006
+### CAA 2026
 ## Pajdla - TKáč - Kozák
 # From Zero to Plotting: R for Anyone
 # March 31
 
-
 # -------------------------------------------------------------------------
-# BLOCK I (9:00 - 11:00) --------------------------------------------------
+# BLOCK I -----------------------------------------------------------------
+# Petr Pajdla -------------------------------------------------------------
 # -------------------------------------------------------------------------
+      
+      # Introduction
+      # Environment
+      # Preparing environment
+      # Installing packages
+      # Loading packages
 
-
-
-# Introduction
-
-
-
-# -------------------------------------------------------------------------
-# BLOCK II (11:30 - 13:00) ------------------------------------------------
-# -------------------------------------------------------------------------
+      # 1+1 etc.
 
 # Environment preparation -------------------------------------------------
 
@@ -28,363 +26,219 @@ dir.create("./plots")
 
 # packages ----------------------------------------------------------------
 
+# install.packages("readr")
+# install.packages("readxl")
 # install.packages("dplyr")
+# install.packages("tidyr")
+# install.packages("janitor")
+# install.packages("ggplot2")
+# install.packages("tidyverse")
 
-library(dplyr)
-library(ggplot2)
-library(readr)
-library(tidyr)
+library(readr)      # reading data (.csv)
+library(readxl)     # reading excel files (.xslx)
 
-library(tidyverse)
+library(dplyr)      # data manipulation
+library(tidyr)      # tidying data
+library(janitor)    # clearing data
 
-library(readxl)
+library(ggplot2)    # data visualisation, Grammar of Graphics
+
+library(tidyverse)  # collection of several useful packages (dplyr, ggplot2, readr, tidyr, stringr, forcats, purrr, tibble)
+
+
+# -------------------------------------------------------------------------
+# BLOCK II ----------------------------------------------------------------
+# Vít Kozák ---------------------------------------------------------------
+# -------------------------------------------------------------------------
+
+
+# Overview ----------------------------------------------------------------
+     
+      # Loading data
+      # Exploring data
+        # through visualisation - ggplot
+      # Identifying problems
 
 
 # Data import -------------------------------------------------------------
 
+# Download data from "https://www.our-data.com" and move it to raw data repository
+
 burials <- read_csv("./data/raw/burials.csv")
-
-goods <- read_csv2("./data/raw/grave_goods.csv")      # csv2 for ";" delimeter
-
-#goods_xlsx <- read_xlsx("./data/raw/grave_goods.xlsx")
-
 
 # Explore data ------------------------------------------------------------
 
 burials
-
-nrow(burials)
-ncol(burials)
-str(burials)
-
 head(burials,4)
 tail(burials, 4)
 
+# How many variables do we have in the data frame?
+
+ncol(burials)
+
+# How many observations are there in the data frame?
+
+nrow(burials)
+
+# What variables are there?
+
 names(burials)
-# 
-# goods
-# 
-# colnames(goods)
-# 
-# nrow(goods)
-# ncol(goods)
-# str(goods)
-# 
-# head(goods,4)
-# tail(goods, 4)
+
+# When did these excavations start and end?
+
+min(burials$Excavation_year)
+max(burials$Excavation_year)
 
 
 # -------------------------------------------------------------------------
-# Tidy data ---------------------------------------------------------------
-# -------------------------------------------------------------------------
+# Visualisation -----------------------------------------------------------
+
+# Let´s explore our data through visualisation
+# Let´s use ggplot!
 
 
-# -------------------------------------------------------------------------
-# Burials -----------------------------------------------------------------
+# Basics + barplot --------------------------------------------------------
+
+##
+# How many individuals of different sex are there in the burial ground?
+
+# data
+ggplot(data = burials)
+
+# aesthetics mapping
+ggplot(data = burials, mapping = aes(x = Sex))
+
+# geometry
+ggplot(data = burials, mapping = aes(x = Sex)) + 
+  geom_bar()
+
+# shortened
+ggplot(burials,aes(x = Sex)) +      # ggplot recognises that first argument is always data and so on...
+  geom_bar()
+
+# using pipeline operator
+burials %>% 
+  ggplot(aes(x = Sex)) +            # pipeline operator takes what is on left side and passes it on to the right side (here argument "data")
+  geom_bar()
 
 
-# Clearing data -----------------------------------------------------------
+# For now, let's stick with basic graphs to identify problems in the dataset. Plots beuitification time will come after lunch.
 
-burials <- burials %>%                 #drops all observations with NAs
-  drop_na()            
+# What problems can you observe within this plot?
+  # inconsistent coding of unknown/not filled values (NA, ?. unknown)
 
-      # burials <- burials %>%        #drops NAs in selected column
-      #   drop_na(Depth_cm)
+##
+# What is orientation of the graves?
 
-burials <- burials %>%                #Not all missing values are coded as NA
-  filter(Sex %in% c("M", "F"))
+burials %>% 
+  ggplot(aes(x = orientation)) +
+  geom_bar()
 
+  # inconsistent coding of orientation
 
-# 
-# # Mutate - create or modify columns ---------------------------------------
-# burials <- burials %>%               #create new column
-#   mutate(Analysed = "CAA 2026")
+##
+# What was the most intensive excavation season?
 
+burials %>% 
+  ggplot(aes(x = Excavation_year)) +
+  geom_bar()
 
-# Rename columns ----------------------------------------------------------
-colnames(burials)
+  # Data are ok here
 
-burials <- rename(burials, Orientation = orientation)
+# Histogram ---------------------------------------------------------------
 
-burials <- rename(burials, Grave_ID = "grave id")
+##
+# What is distribution of grave pit depth?
 
-# pipe
+burials %>% 
+  ggplot(aes(x = Depth_cm)) +
+  geom_histogram()
 
-# Recode variable ---------------------------------------------------------
-
-#Preservation
-
-unique(burials$Preservation)
-
-# #OR
-# 
-# burials %>% 
-#   group_by(Preservation) %>%    # Oh no! Different form of variable!
-#   count()                       # R is case sensitive
-# 
-# #OR just
-# 
-# table(burials$Preservation)
+  # depth values seems to be ok. Warning message: missing values
 
 
+# Boxplot -----------------------------------------------------------------
 
-burials <- burials %>%
-  mutate(Preservation = recode(Preservation, 
-                               GOOD = "Good",
-                               good = "Good",
-                               fair = "Fair",
-                               poor = "Poor")) 
+##
+# Are there differences in grave depth across age categories?
+# !!! Two variables !!!
 
-unique(burials$Preservation)
+str(burials)
 
+burials %>% 
+  ggplot(aes(x = Age_category, y = Depth_cm)) +
+  geom_boxplot()
 
-# OR
-# 
-# burials <- burials %>% 
-#   mutate(Preservation = str_to_title(Preservation))   # str_to_title = function from "stringr" package
-
+  # Median seems to be higher within infant categories
+  # Results distorted by inconsistent category values
 
 
-#Orientation
+# Choose geometry! --------------------------------------------------------
 
-burials <- burials %>%              # recode() does not recognise numbers as argument name; "case_when()" instead!
-  mutate(Orientation = case_when(
-    Orientation == 0 ~ "N-S",
-    Orientation == 90 ~ "E-W",
-    Orientation == 180 ~ "S-N",
-    Orientation == 270 ~ "W-E",
-    .default = Orientation))
+##
+# Anthropologists asked us for number of well preserved indivduals suitable for certain analyses
+# What geometry will you chose?
 
-#Age_category
+burials %>% 
+  ggplot(aes(x = Preservation)) +
+  geom_bar()
 
-# burials %>%                         # Non-consistent categories 
-#   group_by(Age_category) %>% 
-#   count()
+  # It seems there is enough well preserved skeletons
+  # However, there are again inconsistently employed values. Will fix it soon
 
-unique(burials$Age_category)
+# Anthropologists are asking us for the plot (they are in hurry). Let´s export it:
 
+ggsave("plot1.png")
 
-burials <- burials %>% mutate(Age_category = recode(Age_category,
-                                                mature = "adult",
-                                                infant = "child"))
+# we can have more control over the result:
 
-
-# Select columns ----------------------------------------------------------
-
-colnames(burials)
-
-burials %>% select("Grave_ID", "Context", "Age_category", "Sex", "Orientation", "Depth_cm", "Preservation", "Excavation_year")
-
-#OR
-
-burials <- burials %>% select(-Analysed)  #OR select(-c(Excavation_year, Analysed))
+p1 <- burials %>% 
+  ggplot(aes(x = Preservation)) +
+  geom_bar()
 
 
-# Filter values -----------------------------------------------------------
+ggsave("./plots/plot1.png", plot = p1, width = 8, height = 6, dpi = 300)
 
-# burials %>% filter(Excavation_year == "2019")
-
-adult <- burials %>% filter(Age_category == "adult")
-
-adult_M <- burials %>% filter(Age_category == "adult" & Sex == "M")
 
 
 # -------------------------------------------------------------------------
-# Grave goods -------------------------------------------------------------
+# BLOCK III ---------------------------------------------------------------
+# Peter Tkáč  -------------------------------------------------------------
+# Petr Pajdla -------------------------------------------------------------
+# -------------------------------------------------------------------------
+
+
+# Part I ------------------------------------------------------------------
+
+      # cleaning data
+      # Data transformation
+      # Pivoting
+
+
+# Part II -----------------------------------------------------------------
 
 ## INDEPENDENT WORK ##
 
-goods
-view(goods)
+# We just got new data from fellow archaeologists.
+# Use previous script to explore it and 
+
+goods <- read_xlsx("./data/raw/grave_goods.xlsx")
 
 
-# Clearing data -----------------------------------------------------------
 
 
-goods <- goods %>%                # NAs      
-  drop_na()            
-
-goods <- goods %>%                # Negativ weight values
-  filter(weight_g > 0)
-
-goods <- goods %>%                # numeric vs. description
-  filter(length_mm != "fragment") 
-
-goods <- goods %>% filter(dating != "undated")
-
-
-# Rename columns ----------------------------------------------------------
-names(goods)
-
-goods <- rename(goods, 
-                context = Context,
-                category = supercategory)
-
-# Recode variable ---------------------------------------------------------
-
-unique(goods$dating)
-table(goods$dating)                     # All early medieval. What is the "medieval" one?
-
-goods %>% filter(dating == "medieval")  #Ok... medieval ceramic axe. Let´s ditch this observation
-goods <- goods %>% filter(dating != "medieval")
-
-
-goods <- goods %>%                       # All artefacts EMA; we can keep more the detail we have and unite the rest
-  mutate(dating = recode(dating, 
-                        "early medieval" = "EMA",
-                        "Early Medieval" = "EMA",
-                        "Viking Age"     = "EMA",
-                        "9th-10th century" = "EMA"))
-
-table(goods$dating)
-
-
-#how many rings in each period?
-
-goods %>% filter(artifact_type == "ring")  %>%                       
-  group_by(dating) %>% 
-  count()
-
-table(goods$material)
-
-iron <- goods %>% filter(material == "iron")
-
-# -------------------------------------------------------------------------
 # Export data -------------------------------------------------------------
 
 write_csv(burials, "./data/processed/burials.csv")
 write_csv(goods, "./data/processed/goods.csv")
 
 
-
 # -------------------------------------------------------------------------
-# Plotting ----------------------------------------------------------------
+# BLOCK IV ----------------------------------------------------------------
+# Vít Kozák ---------------------------------------------------------------
 # -------------------------------------------------------------------------
+      
 
-
-# basics ------------------------------------------------------------------
-
-# data
-ggplot(data = iron)
-
-# aesthetics mapping
-ggplot(data = iron, mapping = aes(x = length_mm, y = weight_g))
-
-# geometry
-ggplot(data = iron, mapping = aes(x = length_mm, y = weight_g)) + 
-  geom_point()
-
-# shortened
-ggplot(iron, aes(x = length_mm, y = weight_g)) +
-  geom_point()
-
-# using pipeline operator
-iron %>% 
-  ggplot(aes(x = length_mm, y = weight_g)) +
-  geom_point()
-
-
-# adjusting plot ----------------------------------------------------------
-
-p1 <- iron %>% 
-  ggplot(aes(x = length_mm, y = weight_g, colour = dating, shape = category)) + 
-  geom_point(alpha = 0.8, size = 5) + 
-  labs(x = "Length (mm)",
-       y = " Weight (g)",
-       title = "Early medieval artefacts",
-       subtitle = "Iron",
-       caption = "CAA 2026") +
-  theme_light()
-
-p1
-
-ggsave("./plots/plot1.png", plot = p1, width = 8, height = 6, dpi = 300)
-
-# -------------------------------------------------------------------------
-# BLOCK III (14:30 - 15:30) -----------------------------------------------
-# -------------------------------------------------------------------------
-
-
-# Joining data ------------------------------------------------------------
-
-table(goods$material)   # Let´s ditch textile and amber + create material category "metal"
-
-good_goods <- goods %>% 
-  filter(material != "amber" , material != "textile")   # alternatively:   filter(!material %in% c("amber", "textile"))
-
-good_goods <- good_goods %>%
-  mutate(material = case_when(
-    material %in% c("bronze", "copper alloy", "iron", "silver") ~ "metal",
-    .default = material))
-
-table(good_goods$material)
-
-#Pivoting
-
-
-goods_wide <- good_goods %>% 
-  group_by(context) %>% 
-  mutate(weight_g = sum(weight_g, na.rm = TRUE)) %>%  # total weight per context
-  ungroup() %>% 
-  count(context, material, weight_g) %>% 
-  pivot_wider(names_from = material, 
-              values_from = n, 
-              values_fill = 0)
-
-# LEFT join 
-
-goods_wide <- goods_wide %>% rename(Context = context)
-
-data <- left_join(burials, goods_wide, by = "Context")
-
-str(data)     # Let´s consider that contexts not mentioned in "burials" had 0 goods
-
-data <- data %>% 
-  mutate(across(c(weight_g, metal, bone, ceramic, stone, glass), ~replace_na(.x, 0)))
-
-# total number of grave goods
-
-data <- data %>% mutate(goods_total = metal + bone + ceramic + stone + glass)
-
-
-# -------------------------------------------------------------------------
-# Plotting ----------------------------------------------------------------
-# -------------------------------------------------------------------------
-
-
-# Barplot -----------------------------------------------------------------
-
-p2 <- data %>% 
-  ggplot(aes(x = Sex, y = goods_total, fill = Age_category)) +
-  geom_col(width = 0.5) +
-  scale_fill_brewer(palette = "Set2") +             # name = "Age category"
-  scale_y_continuous(breaks = seq(0, 12, by = 2)) +
-  labs(x = "Sex",
-       y = "Number of grave goods", 
-       title = "Grave goods by sex",
-       subtitle = "Early medieval period",
-       caption = "CAA 2026",
-       fill = "Age category") +
-  theme_light()
-  
-
-print(p2)
-
-
-# Boxplot -----------------------------------------------------------------
-
-p3 <- data %>% 
-  ggplot(aes(x = Sex, y = weight_g)) +
-  geom_boxplot() +
-  labs(x = "Sex",
-       y = "Weight of grave goods (g)", 
-       title = "Grave goods by sex",
-       subtitle = "Early medieval period",
-       caption = "CAA 2026") +
-  theme_light()
-
-
-print(p3)
-
-
+      # Plots Beutification
+      # Will be work on when transformation and merging part is done
 
