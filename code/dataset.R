@@ -6,7 +6,7 @@
 set.seed(42) # For reproducibility
 
 # Number of burials
-n_burials <- 50
+n_burials <- 1215
 
 # Generate main burials dataset (CSV)
 burials <- data.frame(
@@ -30,12 +30,12 @@ burials <- data.frame(
     c("M", "F", "?", NA, "", "unknown"),
     n_burials,
     replace = TRUE,
-    prob = c(0.35, 0.35, 0.1, 0.1, 0.05, 0.05)
+    prob = c(0.4, 0.4, 0.05, 0.05, 0.05, 0.05)
   ),
 
   # Orientation - mix of degrees and text, with NAs
   orientation = sample(
-    c("90", "180", "270", "0", "E-W", "N-S", "W-E", NA, ""),
+    c("90", "180", "270", "0", "E-W", "N-S", "W-E", NA),
     n_burials,
     replace = TRUE
   ),
@@ -89,7 +89,7 @@ artifact_types <- data.frame(
     "axe",
     "pottery fragment",
     "pottery vessel",
-    "spindle whorl",
+    "bone fragment",
     "loom weight",
     "bead",
     "bracelet",
@@ -126,61 +126,125 @@ artifact_types <- data.frame(
 
 # Generate individual artifact records
 # Not all contexts have finds, and some have multiple
-n_artifacts <- 85 # Total artifact count
+n_artifacts <- round(n_burials * 0.88) # Total artifact count
+
+
+# Generate artifact types first
+artifact_type <- sample(artifact_types$artifact, n_artifacts, replace = TRUE)
+
+material_map <- list(
+  "sword" = c("iron"),
+  "spearhead" = c("iron", "bronze"),
+  "shield boss" = c("iron", "bronze"),
+  "knife" = c("iron"),
+  "axe" = c("iron"),
+  "pottery fragment" = c("ceramic"),
+  "pottery vessel" = c("ceramic"),
+  "bone fragment" = c("bone"),
+  "loom weight" = c("ceramic", "stone", "bone"),
+  "bead" = c("glass", "amber", "bone", "ceramic"),
+  "bracelet" = c("bronze", "copper alloy"),
+  "ring" = c("bronze", "copper alloy", "silver"),
+  "pendant" = c("bronze", "copper alloy", "silver", "amber", "bone"),
+  "fibula" = c("bronze", "copper alloy", "silver", "copper"),
+  "pin" = c("bronze", "copper alloy", "bone", "copper"),
+  "bone comb" = c("bone"),
+  "belt buckle" = c("iron", "bronze", "copper alloy"),
+  "textile fragment" = c("textile")
+)
+
+weight_map <- list(
+  "sword" = list(mean = 900, sd = 150),
+  "spearhead" = list(mean = 380, sd = 80),
+  "shield boss" = list(mean = 340, sd = 100),
+  "knife" = list(mean = 120, sd = 40),
+  "axe" = list(mean = 600, sd = 150),
+  "pottery fragment" = list(mean = 80, sd = 30),
+  "pottery vessel" = list(mean = 600, sd = 200),
+  "bone fragment" = list(mean = 15, sd = 10),
+  "loom weight" = list(mean = 180, sd = 50),
+  "bead" = list(mean = 5, sd = 2),
+  "bracelet" = list(mean = 30, sd = 10),
+  "ring" = list(mean = 8, sd = 3),
+  "pendant" = list(mean = 12, sd = 5),
+  "fibula" = list(mean = 18, sd = 6),
+  "pin" = list(mean = 10, sd = 4),
+  "bone comb" = list(mean = 25, sd = 8),
+  "belt buckle" = list(mean = 45, sd = 15),
+  "textile fragment" = list(mean = 20, sd = 8)
+)
+
+length_map <- list(
+  "sword" = list(mean = 750, sd = 80),
+  "spearhead" = list(mean = 300, sd = 60),
+  "shield boss" = list(mean = 160, sd = 30),
+  "knife" = list(mean = 180, sd = 40),
+  "axe" = list(mean = 180, sd = 40),
+  "pottery fragment" = list(mean = 60, sd = 20),
+  "pottery vessel" = list(mean = 220, sd = 60),
+  "bone fragment" = list(mean = 40, sd = 20),
+  "loom weight" = list(mean = 70, sd = 15),
+  "bead" = list(mean = 12, sd = 4),
+  "bracelet" = list(mean = 70, sd = 10),
+  "ring" = list(mean = 22, sd = 3),
+  "pendant" = list(mean = 35, sd = 10),
+  "fibula" = list(mean = 50, sd = 15),
+  "pin" = list(mean = 80, sd = 20),
+  "bone comb" = list(mean = 100, sd = 20),
+  "belt buckle" = list(mean = 45, sd = 10),
+  "textile fragment" = list(mean = 60, sd = 25)
+)
 
 grave_goods <- data.frame(
   Context = sample(burials$Context, n_artifacts, replace = TRUE),
 
-  artifact_type = sample(artifact_types$artifact, n_artifacts, replace = TRUE),
+  artifact_type = artifact_type,
 
-  material = sample(
-    c(
-      "iron",
-      "bronze",
-      "copper alloy",
-      "silver",
-      "bone",
-      "ceramic",
-      "glass",
-      "amber",
-      "stone",
-      "textile",
-      NA,
-      ""
-    ),
-    n_artifacts,
-    replace = TRUE,
-    prob = c(
-      0.15,
-      0.15,
-      0.1,
-      0.05,
-      0.1,
-      0.2,
-      0.08,
-      0.05,
-      0.05,
-      0.02,
-      0.03,
-      0.02
+  material = mapply(
+    function(art) {
+      choices <- material_map[[art]]
+      # small chance of NA or empty string for any type
+      if (runif(1) < 0.05) {
+        return(sample(c(NA, ""), 1))
+      }
+      sample(choices, 1)
+    },
+    artifact_type
+  ),
+
+  weight_g = {
+    weights <- mapply(
+      function(art) {
+        if (runif(1) < 0.05) {
+          return(NA_real_)
+        }
+        p <- weight_map[[art]]
+        abs(round(rnorm(1, mean = p$mean, sd = p$sd), 1))
+      },
+      artifact_type
     )
-  ),
-
-  weight_g = round(
-    c(
-      rnorm(70, mean = 45, sd = 30), # Most artifacts
-      rnorm(10, mean = 350, sd = 100), # Heavy items (weapons)
-      rep(NA, 5)
-    ), # Missing weights
-    1
-  ),
+    # Introduce a couple of obvious typos
+    typo_idx <- sample(length(weights), 2)
+    weights[typo_idx] <- weights[typo_idx] * c(10, 0.01)
+    weights
+  },
 
   # Length in mm (some missing, some as "fragment")
-  length_mm = c(
-    round(rnorm(60, mean = 85, sd = 40), 0),
-    rep(NA, 20),
-    rep("fragment", 5)
-  )[sample(n_artifacts)],
+  length_mm = vapply(
+    artifact_type,
+    function(art) {
+      r <- runif(1)
+      if (r < 0.03) {
+        return("fragment")
+      }
+      if (r < 0.08) {
+        return(NA_character_)
+      }
+      p <- length_map[[art]]
+      as.character(round(max(1, abs(rnorm(1, mean = p$mean, sd = p$sd))), 0))
+    },
+    character(1)
+  ),
 
   # Dating - mix of specific and broad periods, some contradictory, some NA
   dating = sample(
@@ -202,6 +266,7 @@ grave_goods <- data.frame(
     prob = c(0.15, 0.1, 0.15, 0.15, 0.2, 0.1, 0.05, 0.03, 0.03, 0.02, 0.02)
   )
 )
+
 
 # Add supercategory by matching artifact types
 grave_goods$supercategory <- artifact_types$supercategory[
