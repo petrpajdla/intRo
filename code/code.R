@@ -14,6 +14,10 @@
 # -------------------------------------------------------------------------
 
 # Introduction to R and RStudio/Positron
+
+# R is a smart calculator
+# zahrnout: $ table() c()
+
 # Setting up the project structure
 # Installing and loading packages
 
@@ -131,7 +135,7 @@ ggplot(burials, aes(x = Sex)) +
   geom_bar()
 
 # Using the pipe operator
-# |> (from magrittr / dplyr) or
+# %>% (from magrittr / dplyr) or
 # |> native R pipe (since R 4.1)
 # It takes the left-hand side and passes it as the first argument to the right
 burials |>
@@ -209,7 +213,8 @@ ggsave(
 # Petr Pajdla -------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-# Data cleaning ------------------------------------------------------------
+# Part 1 ------------------------------------------------------------------
+# Data cleaning -----------------------------------------------------------
 
 # Goal: fix the issues we spotted during exploration
 # Later: data transformation, pivoting, joining
@@ -225,6 +230,8 @@ ggsave(
 names(burials)
 
 # Step 1: Clean column names with janitor ---------------------------------
+
+# TODO:polyfinality - rename & clean_names
 
 # janitor::clean_names() converts all column names to a consistent format:
 # - lowercase
@@ -265,12 +272,13 @@ burials_clean |>
 # Note: empty strings ("") are NOT the same as NA — case_match's
 # .default = NA_character_ catches them
 
+# TODO: Polyfinality, if_else, case_when etc.
 burials_clean <- burials_clean |>
   mutate(
     sex = case_match(
       sex,
-      "F" ~ "F",
-      "M" ~ "M",
+      "F" ~ "female",
+      "M" ~ "male",
       "?" ~ "unknown",
       "unknown" ~ "unknown",
       .default = NA_character_
@@ -282,7 +290,7 @@ burials_clean |>
   count(sex)
 
 # Step 4: Standardise orientation -----------------------------------------
-
+# TODO: samostatná práce
 # What values do we have?
 burials_clean |>
   count(orientation)
@@ -312,30 +320,32 @@ burials_clean <- burials_clean |>
 burials_clean |>
   count(orientation)
 
-# Step 5: Convert character columns to factors ----------------------------
+# TODO: nepřevádět na factory
+# # Step 5: Convert character columns to factors ----------------------------
 
-# Factors represent categorical data with a fixed set of values (levels)
-# Useful for: controlling order in plots, preventing typos, statistical models
+# # Factors represent categorical data with a fixed set of values (levels)
+# # Useful for: controlling order in plots, preventing typos, statistical models
 
-burials_clean <- burials_clean |>
-  mutate(
-    sex = as.factor(sex),
-    preservation = as.factor(preservation),
-    orientation = as.factor(orientation),
-    age_category = factor(
-      age_category,
-      levels = c("infant", "child", "juvenile", "adult", "mature"),
-      ordered = TRUE
-    )
-  )
+# burials_clean <- burials_clean |>
+#   mutate(
+#     sex = as.factor(sex),
+#     preservation = as.factor(preservation),
+#     orientation = as.factor(orientation),
+#     age_category = factor(
+#       age_category,
+#       levels = c("infant", "child", "juvenile", "adult", "mature"),
+#       ordered = TRUE
+#     )
+#   )
 
 # Step 6: Check the result -----------------------------------------------
 
 glimpse(burials_clean)
 
+# TODO: Nedělat summarise across...
 # How many NAs do we have per column?
-burials_clean |>
-  summarise(across(everything(), \(x) sum(is.na(x))))
+# burials_clean |>
+#   summarise(across(everything(), \(x) sum(is.na(x))))
 
 # Compare original vs. cleaned:
 # BEFORE:
