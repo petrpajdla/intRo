@@ -456,35 +456,276 @@ burials_clean |>
 write_csv(burials_clean, "./data/processed/burials.csv")
 write_csv(goods, "./data/processed/goods.csv")
 
+
+# CAA 2026
+
+# Just Vítek things -------------------------------------------------------
+
+
+library(readr) # reading data (.csv)
+library(readxl) # reading excel files (.xlsx)
+
+library(dplyr) # data manipulation
+library(tidyr) # tidying data
+library(janitor) # cleaning data
+
+library(ggplot2) # data visualisation, Grammar of Graphics
+
+library(forcats) # tools for work with categorical variables
+
+
+# data --------------------------------------------------------------------
+
+
+burials_url = "https://raw.githubusercontent.com/petrpajdla/intRo/refs/heads/main/data/burials.csv"
+
+download.file(burials_url, destfile = here::here("data/raw/burials.csv"))
+
+burials <- read_csv(here::here("data/raw/burials.csv"))
+
+# Explore data ------------------------------------------------------------
+
+# Print the tibble — shows first rows and column types
+
+burials
+
+head(burials, 4)
+tail(burials, 4)
+
+# Compact overview of all columns and their types
+glimpse(burials)
+
+# Statistical summary of each column
+summary(burials)
+
+# How many variables do we have in the data frame?
+ncol(burials)
+
+# How many observations are there in the data frame?
+nrow(burials)
+
+# What variables are there?
+names(burials)
+
+# When did these excavations start and end?
+min(burials$Excavation_year)
+max(burials$Excavation_year)
+
+# Preview unique values in columns we'll plot
+# This hints at data quality issues before we even visualise
+distinct(burials, Sex)
+distinct(burials, Preservation)
+distinct(burials, orientation)
+
+
+
 # -------------------------------------------------------------------------
-# BLOCK IV: Plots ---------------------------------------------------------
+# Visualisation with ggplot2 ----------------------------------------------
+
+# ggplot builds plots in layers: data + aesthetics + geometry
+# We use simple plots here to spot data problems; beautification comes later
+
+# Basics + barplot --------------------------------------------------------
+
+# How many individuals of different sex are there in the burial ground?
+
+# Layer 1: data
+ggplot(data = burials)
+
+# Layer 2: aesthetics — map a variable to a visual property
+ggplot(data = burials, mapping = aes(x = Sex))
+
+# Layer 3: geometry — choose how to represent the data
+ggplot(data = burials, mapping = aes(x = Sex)) +
+  geom_bar()
+
+# Shorthand — ggplot knows the first argument is data, second is mapping
+ggplot(burials, aes(x = Sex)) +
+  geom_bar()
+
+# Using the pipe operator
+
+# |> (from magrittr / dplyr) or
+# |> native R pipe (since R 4.1)
+# It takes the left-hand side and passes it as the first argument to the right
+
+burials |>
+  ggplot(aes(x = Sex)) +
+  geom_bar()
+
+#or
+burials |> 
+  ggplot() +
+  aes(x=Sex) + 
+  geom_bar()
+
+
+# What problems can you observe within this plot?
+# -> inconsistent coding
+
+# What is the orientation of the graves?
+
+burials |>
+  ggplot(aes(x = orientation)) +
+  geom_bar()
+
+# -> mix of compass labels ("W-E") and degree values ("270")
+
+# What was the most intensive excavation season?
+
+burials |>
+  ggplot(aes(x = Excavation_year)) +
+  geom_bar()
+
+# -> data look consistent here, no issues
+
+# Histogram ---------------------------------------------------------------
+
+# What is the distribution of grave pit depth?
+
+burials |>
+  ggplot(aes(x = Depth_cm)) +
+  geom_histogram()
+
+burials |> 
+  ggplot() +
+  aes(x = Depth_cm) +
+  geom_histogram()
+
+# Warning about missing values is expected — some depths are NA
+# The distribution looks reasonable, but watch for extreme outliers
+# (values like 1500 or 2200 cm are likely typos — 150 and 220 cm)
+
+# Exercise: choose a geometry! ---------------------------------------------
+
+# Anthropologists need a count of well-preserved individuals.
+# What geometry will you choose?
+
+burials |>
+  ggplot() +
+  aes(x = Preservation)) +
+  geom_???()
+  
+  
+# -> enough well-preserved skeletons, but values are inconsistent
+#    ("GOOD", "Good", "good" are treated as separate categories)
+
+# Exporting plots ---------------------------------------------------------
+
+# Anthropologists need the plot now — let's export it:
+
+ggsave(here::here("plots", "plot1.png"))
+
+# For more control, save the plot to a variable first:
+
+p1 <- burials |>
+  ggplot(aes(x = Preservation)) +
+  geom_bar()
+
+
+ggsave(
+  here::here("plots", "plot1.png"),
+  plot = p1,
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+
+
+# quick join - will be done by Peto ---------------------------------------
+# 
+# 
+# burials_clean <- burials |>
+#   janitor::clean_names()
+# 
+# goods <- read_csv2("./data/raw/grave_goods.csv")
+# 
+# 
+# glimpse(burials_clean)
+# glimpse (goods)
+# 
+# goods_clean <- goods |>
+#   janitor::clean_names() |> 
+#   mutate(
+#     length_mm = case_when(
+#       length_mm == "fragment" | length_mm == "NA" ~ NA_character_,
+#       TRUE ~ length_mm),
+#     length_mm = as.numeric(length_mm))
+# 
+# 
+# data <- left_join(burials_clean, goods_clean, by = "context")
+# 
+# str(data)
+
+
+
+
+
+
+# -------------------------------------------------------------------------
+# BLOCK IV ----------------------------------------------------------------
+# Vít Kozák ---------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-# Plot beautification
+
+# Scatter plot ------------------------------------------------------------
+
+# New data
+# Let´s briefly explore another basic type of plot: scatterplot 
+
+# Relationship between two continuous variables (weight and length)
+
+data |> 
+  ggplot() +
+  aes() +
+
+
+  
+  
+data |> 
+  ggplot() +
+  aes(x = weight_g, y = length_mm) + 
+  geom_point()
+
+
+# -------------------------------------------------------------------------
+# Plot "beautification" ---------------------------------------------------
 # Making publication-ready figures from our cleaned data
 
 # Labels and titles -------------------------------------------------------
 
 # labs() adds titles, axis labels, and captions
 
-# burials_clean |>
-#   ggplot(aes(x = sex)) +
-#   geom_bar() +
-#   labs(
-#     title = "Sex distribution in the burial ground",
-#     x = "Sex",
-#     y = "Count",
-#     caption = "Data: CAA 2026 workshop"
-#   )
+data |>
+  ggplot(aes(x = sex)) +
+  geom_bar()
+
+
+data |>
+  ggplot(aes(x = sex)) +
+  geom_bar() +
+  labs(
+    title = "Sex distribution in the burial ground",
+    x = "Sex",
+    y = "Count",
+    caption = "Data: CAA 2026 workshop"
+  )
 
 # Themes ------------------------------------------------------------------
 
 # Themes control the overall look (background, gridlines, fonts)
 
-# burials_clean |>
-#   ggplot(aes(x = sex)) +
-#   geom_bar() +
-#   theme_minimal()
+data |>
+  ggplot(aes(x = sex)) +
+  geom_bar()
+
+
+
+data |>
+  ggplot(aes(x = sex)) +
+  geom_bar() +
+  theme_minimal()
 
 # Other built-in themes: theme_bw(), theme_classic(), theme_light()
 
@@ -492,17 +733,204 @@ write_csv(goods, "./data/processed/goods.csv")
 
 # Map a variable to colour/fill to add a visual dimension
 
-# burials_clean |>
-#   ggplot(aes(x = age_category, fill = sex)) +
-#   geom_bar(position = "dodge")
+data |>
+  ggplot(aes(x = age_category)) +
+  geom_bar() 
 
+
+
+data |>
+  ggplot(aes(x = age_category, fill = sex)) +
+  geom_bar(position = "dodge")
+
+
+# attribute "position"
 # scale_fill_brewer() and scale_colour_manual() control palettes
 
 # Faceting ----------------------------------------------------------------
 
-# Split one plot into panels by a categorical variable
+# Split one plot into panels by a value of categorical variable
 
-# burials_clean |>
-#   ggplot(aes(x = depth_cm)) +
-#   geom_histogram() +
-#   facet_wrap(~ sex)
+
+burials_clean |>
+  ggplot(aes(x = sex)) +
+  geom_bar()
+
+
+burials_clean |>
+  ggplot(aes(x = sex)) +
+  geom_bar() +
+  facet_wrap(~ age_category)
+
+# scatter plot ------------------------------------------------------------
+
+
+# Let´s subset iron weapons
+
+iron <- data |> 
+  filter(material == "iron" & artifact_type %in% c("knife", "sword", "spearhead"))|>
+  drop_na()
+
+# basic
+  
+  iron |> 
+  ggplot() + 
+  aes(x = length_mm, y = weight_g) +
+  geom_point()
+  
+  
+
+#beuatiful
+
+iron |> 
+  ggplot() +
+  aes(x = length_mm, y = weight_g, colour = artifact_type, shape = sex) +
+  geom_point(size = 2) +
+  geom_smooth(aes(group = 1), method = "lm") +
+  scale_x_continuous(
+    breaks = seq(0, 1000, by = 200),
+    limits = c(100, 900)
+  ) +
+  scale_y_continuous(
+    breaks= seq(0,1400, by = 200),
+    limits = c(100, 1450)
+  ) +
+  scale_color_brewer(palette = "Set2") + #other values - different purpose (Set2, Accent, ...) +
+  theme_bw() + 
+  # facet_wrap(~age_catgory) +
+  labs(title = "The relationship between length and weight",
+       subtitle = "EM knives, swords and spearheads", 
+       x = "Length (mm)",
+       y = "Weight (g)",
+       caption = "CAA 2026",
+       colour = "Weapon type",
+       shape = "Gender")
+
+
+
+# Box plot ----------------------------------------------------------------
+
+data |> 
+  ggplot() +
+  aes(x = age_category, y = depth_cm) + 
+  geom_boxplot()
+
+
+# variable values as factor
+# library(forcats)
+
+data <- data |> mutate(age_category = fct_relevel(age_category, "infant", "child", "mature", "adult", "NA"))
+
+
+data |> filter(depth_cm < 1000) |> 
+  ggplot() + 
+  aes(x = age_category, y = depth_cm) + 
+  geom_boxplot() +
+  # geom_point(position = "jitter", alpha = 0.5, aes(colour = sex)) +
+  theme_bw() +
+  labs(title = "Grave depth by Age category",
+       subtitle = "Early medieval graves",
+       x = "Age category",
+       y = "Depth (cm)",
+       caption = "CAA 2026",
+       colour = "Gender"
+  ) 
+
+
+
+# violin plot -------------------------------------------------------------
+
+
+data |> filter(depth_cm < 1000) |> 
+  ggplot() +
+  aes(x = age_category, y = depth_cm) + 
+  geom_violin()
+
+
+
+
+
+data |> filter(depth_cm < 1000) |> 
+  ggplot() +
+  aes(x = age_category, y = depth_cm) + 
+  geom_violin() +
+  geom_hline(yintercept = median(data$depth_cm, na.rm = TRUE), linetype = "dashed", linewidth = 1) +
+  scale_y_continuous(
+    breaks = seq(0, 200, by = 25),
+    limits = c(50, 200)
+  ) +
+  geom_point(position = "jitter", alpha = 0.5, colour = "steelblue") +
+  theme_bw() +
+  labs(title = "Grave depth by Age category",
+       subtitle = "Early medieval graves",
+       x = "Age category",
+       y = "Depth (cm)",
+       caption = "CAA 2026",
+       # fill = "Age category"
+  )
+
+
+# Reordering --------------------------------------------------------------
+# + tilting labels
+
+data |> 
+  ggplot() +
+  aes(x = material) +
+  geom_bar()
+
+
+data |> 
+  ggplot() +
+  aes(x = fct_infreq(material)) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+# Alphabetic order :( => fct_infreq !
+
+
+
+# Percent stacked barchart ------------------------------------------------
+
+data |> 
+  ggplot(aes(y = supercategory, fill = material)) + 
+  geom_bar(position = "dodge")
+  
+
+
+data |> 
+  drop_na(supercategory) |>
+  drop_na(material) |> 
+  ggplot(aes(y = supercategory, fill = material)) + 
+  geom_bar(position = "fill") +
+  labs(x = "Percentage",
+       title = "Artifacts by material",
+       subtitle = "Early medieval grave contexts",
+       caption = "CAA 2026") +
+  scale_fill_viridis_d(option = "turbo") +
+  theme_classic() +
+  theme(legend.position = "right")
+  
+
+
+# Plot export -------------------------------------------------------------
+
+ggsave(
+  here::here("plots", "plotXY.png"),
+  plot = pXY,
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+
+
+
+# -------------------------------------------------------------------------
+# Time left? Lets practice with package "archdata" ------------------------
+
+# install.packages("archdata")
+# library(archdata)
+# data(DartPoints)
+
+
+
