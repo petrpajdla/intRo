@@ -9,17 +9,75 @@
 # BLOCK IV  — Plot beautification                    (Vít Kozák)
 
 # -------------------------------------------------------------------------
-# BLOCK I -----------------------------------------------------------------
-# Petr Pajdla -------------------------------------------------------------
+# BLOCK I: Introduction ---------------------------------------------------
 # -------------------------------------------------------------------------
 
-# Introduction to R and RStudio/Positron
+# Introduction to R and RStudio/Positron ----------------------------------
 
 # R is a smart calculator
-# zahrnout: $ table() c()
+# Use Ctrl/Cmd + Enter to run the line where your cursor is located
+# Line starting with a # hash is commented, i.e. the code is not run
+1 + 1
+10 / 2
+sqrt(9)
 
-# Setting up the project structure
-# Installing and loading packages
+# Comparator operations return TRUE or FALSE
+4 > 1
+pi == 3.14
+
+# Assignment operator is <-
+# Value is assigned to an object, kind of a "save this thing under this name" operation
+# Written with Alt + - shortcut
+one <- 1
+two <- 2
+one + two
+one == two
+
+# Vector is the simplest array of values
+# It is created using c() function
+c(1, 2, 5)
+
+# Vector always consists of values of the same type
+c("a", "b", "c") # character strings
+c(1.5, 2, pi) # continuous numeric values
+
+# Create a vector called "numbers" with 5 random numbers
+numbers <- c(8, 42, pi, 264.2, 0.1)
+# View it by typing and evaluating the objects name
+numbers
+
+# Functions
+# Functions do things on values or objects...
+# function(argument1 = value1, argument2 = value2, ...)
+mean(numbers)
+max(numbers)
+min(numbers)
+sum(numbers)
+length(numbers)
+summary(numbers)
+str(numbers)
+
+# R is case sensitive
+object <- "Hello World!"
+OBJECT <- "HELLO WORLD!"
+
+object == OBJECT
+
+# More complex data can be stored in data frames
+# Data frame is basically a table
+df <- data.frame(
+  numbers = 20:24,
+  strings = c("a", "b", "c", "d", "e")
+)
+
+df
+
+# Pull columns from data frames with $ dollarsign
+df$numbers
+df$strings
+
+# Inspect the structure of your object using str() function
+str(df)
 
 # Project structure -------------------------------------------------------
 
@@ -59,8 +117,7 @@ library(ggplot2) # data visualisation, Grammar of Graphics
 # library(tidyverse) # includes dplyr, ggplot2, readr, tidyr, stringr, forcats, purrr, tibble
 
 # -------------------------------------------------------------------------
-# BLOCK II ----------------------------------------------------------------
-# Vít Kozák ---------------------------------------------------------------
+# BLOCK II: Reading and exploring data ------------------------------------
 # -------------------------------------------------------------------------
 
 # Data import, exploration & first visualisations
@@ -208,12 +265,9 @@ ggsave(
 
 
 # -------------------------------------------------------------------------
-# BLOCK III ---------------------------------------------------------------
-# Peter Tkáč  -------------------------------------------------------------
-# Petr Pajdla -------------------------------------------------------------
+# BLOCK III: Data cleaning and transformations ----------------------------
 # -------------------------------------------------------------------------
 
-# Part 1 ------------------------------------------------------------------
 # Data cleaning -----------------------------------------------------------
 
 # Goal: fix the issues we spotted during exploration
@@ -229,10 +283,16 @@ ggsave(
 # Let's inspect the column names first:
 names(burials)
 
-# Step 1: Clean column names with janitor ---------------------------------
+# Step 1: Clean column names ----------------------------------------------
 
-# TODO:polyfinality - rename & clean_names
+# First option: rename by hand
+burials |>
+  rename(
+    Grave_ID = "grave id",
+    Orientation = "orientation"
+  )
 
+# Second option: use a package janitor
 # janitor::clean_names() converts all column names to a consistent format:
 # - lowercase
 # - spaces replaced with underscores
@@ -374,8 +434,22 @@ burials_clean |>
 # We just got new data from fellow archaeologists.
 # Use previous script to explore it and
 
-goods <- read_xlsx("./data/raw/grave_goods.xlsx")
+goods <- readxl::read_xlsx("data/grave_goods.xlsx")
+goods <- read_csv2(here::here("data/grave_goods.csv"))
 
+good_counts <- goods |>
+  group_by(Context, artifact_type) |>
+  count() |>
+  pivot_wider(
+    values_from = n,
+    id_cols = Context,
+    names_from = artifact_type,
+    values_fill = 0
+  )
+
+burials_clean |>
+  left_join(good_counts, join_by(context == Context)) |>
+  View()
 
 # Export data -------------------------------------------------------------
 
@@ -383,8 +457,7 @@ write_csv(burials_clean, "./data/processed/burials.csv")
 write_csv(goods, "./data/processed/goods.csv")
 
 # -------------------------------------------------------------------------
-# BLOCK IV ----------------------------------------------------------------
-# Vít Kozák ---------------------------------------------------------------
+# BLOCK IV: Plots ---------------------------------------------------------
 # -------------------------------------------------------------------------
 
 # Plot beautification
