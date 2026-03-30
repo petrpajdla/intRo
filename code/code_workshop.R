@@ -38,12 +38,12 @@
 # Use Ctrl/Cmd + Enter to run the line where your cursor is located
 # Line starting with a # hash is commented, i.e. the code is not run
 1 + 1
-10 / 2
-sqrt(9)
+
+
 
 # Comparator operations return TRUE or FALSE
-4 > 1
-pi == 3.14
+
+
 
 # Assignment operator is <-
 # Value is assigned to an object, kind of a 
@@ -52,32 +52,32 @@ pi == 3.14
 one <- 1
 two <- 2
 one + two
-one == two
+
 
 # Vector is the simplest array of values
 # It is created using c() function
-c(1, 2, 5)
+c()
 
 # Vector always consists of values of the same type
-c("a", "b", "c") # character strings
+c("a", "b") # character strings
 c(1.5, 2, pi) # continuous numeric values
 
 # TASK: 
 # 1. Create a vector called "numbers" with 5 random numbers
-numbers <- c(8, 42, pi, 264.2, 0.1)
+numbers <- c()
 # 2. View it by typing and evaluating the objects name
-numbers
+
 
 # Functions
 # Functions do things on values or objects...
 # function(argument1 = value1, argument2 = value2, ...)
-mean(numbers)
-max(numbers)
-min(numbers)
-sum(numbers)
-length(numbers)
-summary(numbers)
 str(numbers)
+
+
+
+
+
+
 
 # R is case sensitive
 object <- "Hello World!"
@@ -98,14 +98,14 @@ View(df)
 
 # Pull columns from data frames with $ dollarsign
 df$numbers
-df$letters
+df$
 
 # Inspect the structure of your object using str() function
 str(df)
 
 # Look for help with ?function_name
 ?mean
-?str
+
 
 ## Project structure -----------------------------------------------------------
 
@@ -124,24 +124,24 @@ dir.create(here::here("plots"))
 
 # Install packages (only needed once, then comment out):
 
-# install.packages("readr")
-# install.packages("readxl")
-# install.packages("dplyr")
-# install.packages("tidyr")
-# install.packages("janitor")
-# install.packages("ggplot2")
-# install.packages("tidyverse")
+install.packages("readr")
+install.packages("readxl")
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("janitor")
+install.packages("ggplot2")
+install.packages("tidyverse")
 
 # Load packages (needed every session):
 
 library(readr) # reading data (.csv)
-library(readxl) # reading excel files (.xlsx)
-library(dplyr) # data manipulation
-library(tidyr) # tidying data
-library(ggplot2) # data visualisation, Grammar of Graphics
 
-# Alternatively, load several packages at once with tidyverse:
-library(tidyverse) # includes dplyr, ggplot2, readr, tidyr etc.
+
+
+
+
+
+
 
 
 # BLOCK II: Reading and exploring data -----------------------------------------
@@ -312,7 +312,7 @@ names(burials)
 burials |>
   rename(
     Grave_ID = "grave id",
-    Orientation = "orientation"
+    # rename Orientation to orientation - fix the capital letter
   )
 
 # Second option: use a package janitor
@@ -325,7 +325,7 @@ burials_clean <- burials |>
   janitor::clean_names()
 
 # Check names again:
-names(burials_clean)
+
 
 # "grave id" became "grave_id" — no more backticks needed!
 
@@ -343,13 +343,13 @@ burials_clean <- burials_clean |>
 
 # Check the result:
 burials_clean |>
-  count(preservation)
+  count()
 
 ### Step 3: Standardise sex ----------------------------------------------------
 
 # What values are in the sex column?
 burials_clean |>
-  count(sex)
+  count()
 
 # We have: ?, F, M, NA, empty string (""), unknown
 # "?", "unknown", and "" all mean "we don't know" — let's unify them
@@ -369,14 +369,14 @@ burials_clean <- burials_clean |>
   )
 
 # Check:
-burials_clean |>
-  count(sex)
+
+
 
 ### Step 4: Standardise orientation --------------------------------------------
-# TODO: samostatná práce
+
 # What values do we have?
-burials_clean |>
-  count(orientation)
+
+
 
 # Mix of compass labels (E-W, N-S, W-E) and degrees (0, 180, 270, 90)
 # Let's convert degrees to compass labels so everything is consistent
@@ -392,16 +392,16 @@ burials_clean <- burials_clean |>
     orientation = case_match(
       orientation,
       "0" ~ "N-S",
-      "90" ~ "E-W",
-      "180" ~ "S-N",
-      "270" ~ "W-E",
+
+
+
       .default = orientation
     )
   )
 
 # Check:
-burials_clean |>
-  count(orientation)
+
+
 
 ### Step 5: Missing values -----------------------------------------------------
 
@@ -418,9 +418,9 @@ glimpse(burials_clean)
 
 # How many NAs do we have per column?
 burials_clean$sex |> is.na() |> sum()
-burials_clean$orientation |> is.na() |> sum()
-burials_clean$depth_cm |> is.na() |> sum()
-burials_clean$preservation |> is.na() |> sum()
+burials_clean$orientation
+burials_clean
+
 
 
 # Compare original vs. cleaned:
@@ -739,10 +739,10 @@ burials_goods |>
 
   
   
-burials_goods |> 
-  ggplot() +
-  aes(x = weight_g, y = length_mm) + 
-  geom_point()
+
+
+
+
 
 
 
@@ -758,15 +758,15 @@ burials_goods |>
   geom_bar()
 
 
-burials_goods |>
-  ggplot(aes(x = sex)) +
-  geom_bar() +
-  labs(
-    title = "Sex distribution in the burial ground",
-    x = "Sex",
-    y = "Count",
-    caption = "Data: CAA 2026 workshop"
-  )
+
+
+
+
+
+
+
+
+
 
 ### Themes ---------------------------------------------------------------------
 
@@ -778,10 +778,10 @@ burials_goods |>
 
 
 
-burials_goods |>
-  ggplot(aes(x = sex)) +
-  geom_bar() +
-  theme_minimal()
+
+
+
+
 
 # Other built-in themes: theme_bw(), theme_classic(), theme_light()
 
@@ -795,9 +795,9 @@ burials_goods |>
 
 
 
-burials_goods |>
-  ggplot(aes(x = age_category, fill = sex)) +
-  geom_bar(position = "dodge")
+
+
+
 
 
 # attribute "position"
@@ -813,10 +813,10 @@ burials_clean |>
   geom_bar()
 
 
-burials_clean |>
-  ggplot(aes(x = sex)) +
-  geom_bar() +
-  facet_wrap(~ age_category)
+
+
+
+
 
 ## scatter plot ----------------------------------------------------------------
 
@@ -907,24 +907,24 @@ burials_goods |> filter(depth_cm < 1000) |>
 
 
 
-burials_goods |> filter(depth_cm < 1000) |> 
-  ggplot() +
-  aes(x = age_category, y = depth_cm) + 
-  geom_violin() +
-  geom_hline(yintercept = median(burials_goods$depth_cm, na.rm = TRUE), linetype = "dashed", linewidth = 1) +
-  scale_y_continuous(
-    breaks = seq(0, 200, by = 25),
-    limits = c(50, 200)
-  ) +
-  geom_point(position = "jitter", alpha = 0.5, colour = "steelblue") +
-  theme_bw() +
-  labs(title = "Grave depth by Age category",
-       subtitle = "Early medieval graves",
-       x = "Age category",
-       y = "Depth (cm)",
-       caption = "CAA 2026",
-       # fill = "Age category"
-  )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Reordering ------------------------------------------------------------------
@@ -936,11 +936,11 @@ burials_goods |>
   geom_bar()
 
 
-burials_goods |> 
-  ggplot() +
-  aes(x = fct_infreq(material)) +
-  geom_bar() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+
+
+
+
 
 # Alphabetic order :( => fct_infreq !
 
@@ -954,18 +954,18 @@ burials_goods |>
   
 
 
-burials_goods |> 
-  drop_na(supercategory) |>
-  drop_na(material) |> 
-  ggplot(aes(y = supercategory, fill = material)) + 
-  geom_bar(position = "fill") +
-  labs(x = "Percentage",
-       title = "Artifacts by material",
-       subtitle = "Early medieval grave contexts",
-       caption = "CAA 2026") +
-  scale_fill_viridis_d(option = "turbo") +
-  theme_classic() +
-  theme(legend.position = "right")
+
+
+
+
+
+
+
+
+
+
+
+
   
 
 
@@ -992,3 +992,4 @@ ggsave(
 
 # Do you have any problems with your own data? 
 # Let's try to solve them together!
+
