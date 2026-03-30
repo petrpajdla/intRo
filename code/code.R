@@ -8,11 +8,11 @@
 # BLOCK III — Data cleaning & transformation         (Peter Tkáč & Petr Pajdla)
 # BLOCK IV  — Plot beautification                    (Vít Kozák)
 
-# -------------------------------------------------------------------------
-# BLOCK I: Introduction ---------------------------------------------------
-# -------------------------------------------------------------------------
 
-# Introduction to R and RStudio/Positron ----------------------------------
+# BLOCK I: Introduction ---------------------------------------------------
+
+
+## Introduction to R and RStudio/Positron ----------------------------------
 
 # R is a smart calculator
 # Use Ctrl/Cmd + Enter to run the line where your cursor is located
@@ -79,18 +79,18 @@ df$strings
 # Inspect the structure of your object using str() function
 str(df)
 
-# Project structure -------------------------------------------------------
+## Project structure -------------------------------------------------------
 
 # here::here() builds paths relative to the project root
 # This keeps paths portable across machines
 
 dir.create(here::here("data"))
-dir.create(here::here("data/raw"))
+dir.create(here::here("data/raw")) 
 dir.create(here::here("data/processed"))
 dir.create(here::here("code"))
 dir.create(here::here("plots"))
 
-# Packages ----------------------------------------------------------------
+## Packages ----------------------------------------------------------------
 
 # Install packages (only needed once, then comment out):
 
@@ -116,14 +116,14 @@ library(ggplot2) # data visualisation, Grammar of Graphics
 # Alternatively, load all at once with tidyverse:
 # library(tidyverse) # includes dplyr, ggplot2, readr, tidyr, stringr, forcats, purrr, tibble
 
-# -------------------------------------------------------------------------
+
 # BLOCK II: Reading and exploring data ------------------------------------
-# -------------------------------------------------------------------------
+
 
 # Data import, exploration & first visualisations
 # Goal: get to know the dataset and identify data quality issues
 
-# Data import -------------------------------------------------------------
+## Data import -------------------------------------------------------------
 
 # Download data from
 # https://github.com/petrpajdla/intRo/blob/main/data/burials.csv
@@ -134,7 +134,7 @@ download.file(burials_url, destfile = here::here("data/raw/burials.csv"))
 
 burials <- read_csv(here::here("data/raw/burials.csv"))
 
-# Explore data ------------------------------------------------------------
+## Explore data ------------------------------------------------------------
 
 # Print the tibble — shows first rows and column types
 burials
@@ -168,12 +168,12 @@ distinct(burials, Preservation)
 distinct(burials, orientation)
 
 
-# Visualisation with ggplot2 ----------------------------------------------
+## Visualisation with ggplot2 ----------------------------------------------
 
 # ggplot builds plots in layers: data + aesthetics + geometry
 # We use simple plots here to spot data problems; beautification comes later
 
-# Basics + barplot --------------------------------------------------------
+### Basics + barplot --------------------------------------------------------
 
 # How many individuals of different sex are there in the burial ground?
 
@@ -191,7 +191,7 @@ ggplot(data = burials, mapping = aes(x = Sex)) +
 ggplot(burials, aes(x = Sex)) +
   geom_bar()
 
-# Using the pipe operator
+# Using the pipe operator # PT: ja by som pipe operator nekombinoval v úvode ggplotu ale dal by som ho až na neskôr
 # %>% (from magrittr / dplyr) or
 # |> native R pipe (since R 4.1)
 # It takes the left-hand side and passes it as the first argument to the right
@@ -218,7 +218,7 @@ burials |>
 
 # -> data look consistent here, no issues
 
-# Histogram ---------------------------------------------------------------
+### Histogram ---------------------------------------------------------------
 
 # What is the distribution of grave pit depth?
 
@@ -230,7 +230,7 @@ burials |>
 # The distribution looks reasonable, but watch for extreme outliers
 # (values like 1500 or 2200 cm are likely typos — 150 and 220 cm)
 
-# Exercise: choose a geometry! ---------------------------------------------
+## Exercise: choose a geometry! ---------------------------------------------
 
 # Anthropologists need a count of well-preserved individuals.
 # What geometry will you choose?
@@ -242,7 +242,7 @@ burials |>
 # -> enough well-preserved skeletons, but values are inconsistent
 #    ("GOOD", "Good", "good" are treated as separate categories)
 
-# Exporting plots ---------------------------------------------------------
+## Exporting plots ---------------------------------------------------------
 
 # Anthropologists need the plot now — let's export it:
 
@@ -264,11 +264,10 @@ ggsave(
 )
 
 
-# -------------------------------------------------------------------------
-# BLOCK III: Data cleaning and transformations ----------------------------
-# -------------------------------------------------------------------------
 
-# Data cleaning -----------------------------------------------------------
+# BLOCK III: Data cleaning and transformations ----------------------------
+
+## Data cleaning -----------------------------------------------------------
 
 # Goal: fix the issues we spotted during exploration
 # Later: data transformation, pivoting, joining
@@ -283,12 +282,12 @@ ggsave(
 # Let's inspect the column names first:
 names(burials)
 
-# Step 1: Clean column names ----------------------------------------------
+### Step 1: Clean column names ----------------------------------------------
 
 # First option: rename by hand
 burials |>
   rename(
-    Grave_ID = "grave id",
+    Grave_ID = "grave id", # PT: ja mám "grave.id"
     Orientation = "orientation"
   )
 
@@ -305,7 +304,7 @@ names(burials_clean)
 
 # "grave id" became "grave_id" — no more backticks needed!
 
-# Step 2: Standardise preservation ----------------------------------------
+### Step 2: Standardise preservation ----------------------------------------
 
 # What values are in the preservation column?
 burials_clean |>
@@ -321,7 +320,7 @@ burials_clean <- burials_clean |>
 burials_clean |>
   count(preservation)
 
-# Step 3: Standardise sex -------------------------------------------------
+### Step 3: Standardise sex -------------------------------------------------
 
 # What values are in the sex column?
 burials_clean |>
@@ -330,7 +329,7 @@ burials_clean |>
 # We have: ?, F, M, NA, empty string (""), unknown
 # "?", "unknown", and "" all mean "we don't know" — let's unify them
 # Note: empty strings ("") are NOT the same as NA — case_match's
-# .default = NA_character_ catches them
+# .default = NA_character_ catches them # PT: nerozumiem tej poznámke: v kóde nižšie sa predsa z "" stane NA
 
 # TODO: Polyfinality, if_else, case_when etc.
 burials_clean <- burials_clean |>
@@ -349,7 +348,7 @@ burials_clean <- burials_clean |>
 burials_clean |>
   count(sex)
 
-# Step 4: Standardise orientation -----------------------------------------
+### Step 4: Standardise orientation -----------------------------------------
 # TODO: samostatná práce
 # What values do we have?
 burials_clean |>
@@ -381,7 +380,7 @@ burials_clean |>
   count(orientation)
 
 # TODO: nepřevádět na factory
-# # Step 5: Convert character columns to factors ----------------------------
+### Step 5: Convert character columns to factors ----------------------------
 
 # # Factors represent categorical data with a fixed set of values (levels)
 # # Useful for: controlling order in plots, preventing typos, statistical models
@@ -398,7 +397,7 @@ burials_clean |>
 #     )
 #   )
 
-# Step 6: Check the result -----------------------------------------------
+### Step 6: Check the result -----------------------------------------------
 
 glimpse(burials_clean)
 
@@ -427,39 +426,295 @@ burials_clean |>
   ggplot(aes(x = sex)) +
   geom_bar()
 
-# Part II -----------------------------------------------------------------
+# PT: niesú vyriešené NA v depth_cm
+# burials_clean <- burials_clean |> 
+# na.omit(depth_cm)
 
-## INDEPENDENT WORK ##
 
-# We just got new data from fellow archaeologists.
-# Use previous script to explore it and
+## Data transformation ------------------------------
 
-goods <- readxl::read_xlsx("data/grave_goods.xlsx")
-goods <- read_csv2(here::here("data/grave_goods.csv"))
+### Overview -----------
+# In this course, you will learn how to:
+#   
+# - select specific columns or remove them -- select()
+# - create new columns and change the values based on different conditions -- mutate(), case_when()
+# - filter specific rows based on various conditions -- filter()
+# - order your rows from lowest to highest values (or vice versa) -- arrange()
+# - group your data and calculate different summary statistics -- summarise(), group_by()
+# - work with different functions more effectively with the pipe operator -- |>
 
-good_counts <- goods |>
-  group_by(Context, artifact_type) |>
-  count() |>
-  pivot_wider(
-    values_from = n,
-    id_cols = Context,
-    names_from = artifact_type,
-    values_fill = 0
-  )
+### dplyr package ----------
+# we will work with the dplyr package which uses tidy data logic (one variable = one column, one observation = one row,...)
+# a major advantage of this package is its more intuitive, human-readable syntax
+
+# In Base R, the code for filtering those burials would look like this:
+
+
+burials_clean[burials_clean$preservation == "good",]
+
+
+# and this is a solution with the filter() function from the dplyr package:
+
+filter(burials_clean, preservation == "good")
+
+# Similarly, if your dataframe has too many unnecessary columns, you can select a few to make it easier to navigate.
+# This would be the solution in R Base:
+
+burials_clean[, c("grave_id", "age_category", "sex", "preservation")]
+
+# And this is done with the select() function from the dplyr package.
+
+select(burials_clean, grave_id, age_category, sex, preservation)
+
+
+### pipe operator |> -----------------
+
+# The pipe operator |> allows you to combine various functions into one code chunk, making your code shorter and easier to read.
+
+# syntax:
+#  dataframe |> function_1(variable, condition) |> function_2(variable, condition)
+
+
+# You can combine functions select(), filter() and head():
+
+burials_clean |> 
+  select(grave_id, age_category, sex, preservation) |> 
+  filter(preservation == "good") |> 
+  head(4)
+
+
+
+
+### filter() function ------------
+
+# We already know function `filter()`
+
+burials_clean |> 
+  filter(preservation == "good")
+
+
+
+# For specifying conditions for filtering, dplyr uses the following logical and mathematical operators: ==, !=, <, >, >=, <=, &, |, %in%, (etc.)
+
+burials_clean |> 
+  filter(depth_cm >= 175)
+
+# PT: tejto premennej sú aj hodnoty 1500 
+
+# watch the difference between & (AND) and | (OR)
+
+burials_clean |> 
+  filter(preservation == "good" & depth_cm >= 175)
+
+burials_clean |> 
+  filter(preservation == "good" | depth_cm >= 175)
+
+
+# filtering by vector
+
+table(burials_clean$age_category)
+
+
+list_adults <- c("adult", "mature") 
+
+burials_clean |> 
+  filter(age_category %in% list_adults)
+
+# negative filtering
+
+burials_clean |> 
+  filter(preservation != "poor")
+
+### Important --------------
+
+# This code instantly returns dataframe with male graves only, but without saving the result
+
+burials_clean |> 
+  filter(sex == "male")
+
+
+# This code saves all male burials_clean into new dataframe "male_burial", but is not showing the result
+
+male_burials <- burials_clean |> 
+  filter(sex == "male")
+
+# To see the result, we need to add aditional line
+
+male_burials <- burials_clean |> 
+  filter(sex == "male")
+male_burials
+
+
+### select() ------------
+names(burials_clean)
+
+
+
+burials_clean |> 
+  select(grave_id, age_category, sex) |> 
+  head(4)
+
+# negative selecting
+
+burials_clean |> 
+  select(-excavation_year) |> 
+  head(4)
+
+# selecting variables from age_category to depth_cm
+burials_clean |> 
+  select(grave_id, age_category:depth_cm) |> 
+  head(4)
+
+### mutate() ---------------
+
+# this function creates new columns that are calculated from existing ones (i.e. the new columns are functions of the original variables)
+
+# syntax:
+#   dataframe |> mutate(variable_name = function())
+
+# in the example below, a new column called "depth_m" is created by dividing the "depth_cm" column by 100
+
+burials_clean |> 
+  mutate(depth_m = depth_cm/100) |> 
+  head(4)
+
+# this example creates new variable "site_name" and adds value "Haithabu" to all rows
+
+burials_clean |> 
+  mutate(site_name = "Haithabu") |> 
+  head(4)
+
+### mutate() and case_when() --------------------
+
+# you can create new variables with values based on conditions in other variables
+
+burials_clean |> 
+  mutate(depth_category = case_when(
+    depth_cm < 100 ~ "shallow grave",
+    depth_cm > 180 ~ "deep grave",
+    .default = "normal grave"
+  )) |> 
+  head(4)
+
+
+
+### summarise() and group_by() -----------
+# lets say we want to know the average depth of the graves
+
+# this code returns single value - the average depth of all graves
+
+burials_clean |> 
+  summarise(mean_depth = mean(depth_cm))
+
+# it is not very helpfull so we will have a look on average depth based of sex of the buried individuals
 
 burials_clean |>
-  left_join(good_counts, join_by(context == Context)) |>
-  View()
+  group_by(sex) |> 
+  summarise(mean_depth = mean(depth_cm),
+            n_graves = n()) |> 
+  arrange(n_graves)
 
-# Export data -------------------------------------------------------------
 
-write_csv(burials_clean, "./data/processed/burials.csv")
+# Part II -----------------------------------------------------------------
+# PT: kde je Part I?
+
+## adding table with the artefacts --------
+
+# We just got new data from fellow archaeologists, which contains information about artefacts from the same burial site. 
+# our colleagues had send us the file in excel format, so now we will how to import ecxel sheets
+
+
+### importing .xlsx file ----------
+
+goods <- readxl::read_xlsx("data/grave_goods.xlsx")
+#goods <- read_csv2(here::here("data/grave_goods.csv"))
+
+
+
+### checking the variables ----
+
+str(goods)
+
+# the table goods contains information about individual artefacts found in the graves from the burials table
+# lets try to connect it with the burials table
+
+# first, we need to identify the key variables, that will allow us to create a relation between the two tables
+
+
+str(goods)
+str(burials_clean)
+
+# we see that the key variables are "Context" from the table goods and "context" from the table burials_clean
+
+
+### left_join() --------
+
+# we will use the left_join() function to attach variables from the "goods" to the "burials_clean"
+# the key will be specified using the "join_by()" attribute
+
+burials_goods <- burials_clean |> 
+  left_join(goods_clean, join_by(context == Context))
+head(burials_goods, 4)
+
+# the result is combined table where each burial have also variables about the artefacts
+# note that one burial can be now on more than one row and that the new table still includes burials without any artifacts
+
+# for example, grave GO19 contains 3 artifacts:
+
+burials_goods |> 
+  filter(grave_id == "G019")
+
+### checking the new data -------
+
+# PT: weight_g sú s čiarkou ako desatinnou čiarkou, potreba zjednotiť
+
+str(burials_goods)
+
+
+## Tasks! -------------------
+
+### Task 1: female graves with weapons ---------------
+# find out all female graves with weapons or armour and create a new table showing number of weapons in each (female) grave
+
+# hints: burials_goods$supercategory, filter(), group_by(), summarise()
+
+table(burials_goods$artifact_type)
+
+table(burials_goods$supercategory)
+
+female_wariors <- burials_goods |> 
+  filter(sex == "female" & supercategory == "weapons and armour") |> 
+  group_by(grave_id) |> 
+  summarise(number_of_weapons = n())
+
+
+### Task 2: dating--------------
+# Try to identify any problems with the variable "dating" and propose a solution
+
+
+### Task 3: relocate() ----------------
+
+# what is the function "relocate()" doing here?
+
+burials_goods |> 
+  relocate(dating, .after = material) |> 
+  head(4)
+
+## Export data -------------------------------------------------------------
+
+write_csv(burials_clean, "./data/processed/burials.csv") # PT: ja by som ten výsledný súbor taktiež premenoval aby bolo jasné že sú to už vyčistené data
 write_csv(goods, "./data/processed/goods.csv")
+
+# PT: alternatives 
+
+library(writexl)
+
+write_xlsx(burials_goods, path = here("data/burials_goods.xlsx"))
 
 
 # CAA 2026
 
-# Just Vítek things -------------------------------------------------------
+## Just Vítek things -------------------------------------------------------
 
 
 library(readr) # reading data (.csv)
@@ -474,7 +729,7 @@ library(ggplot2) # data visualisation, Grammar of Graphics
 library(forcats) # tools for work with categorical variables
 
 
-# data --------------------------------------------------------------------
+## data --------------------------------------------------------------------
 
 
 burials_url = "https://raw.githubusercontent.com/petrpajdla/intRo/refs/heads/main/data/burials.csv"
@@ -483,7 +738,7 @@ download.file(burials_url, destfile = here::here("data/raw/burials.csv"))
 
 burials <- read_csv(here::here("data/raw/burials.csv"))
 
-# Explore data ------------------------------------------------------------
+## Explore data ------------------------------------------------------------
 
 # Print the tibble — shows first rows and column types
 
@@ -519,13 +774,13 @@ distinct(burials, orientation)
 
 
 
-# -------------------------------------------------------------------------
-# Visualisation with ggplot2 ----------------------------------------------
+
+## Visualisation with ggplot2 ----------------------------------------------
 
 # ggplot builds plots in layers: data + aesthetics + geometry
 # We use simple plots here to spot data problems; beautification comes later
 
-# Basics + barplot --------------------------------------------------------
+### Basics + barplot --------------------------------------------------------
 
 # How many individuals of different sex are there in the burial ground?
 
@@ -579,7 +834,7 @@ burials |>
 
 # -> data look consistent here, no issues
 
-# Histogram ---------------------------------------------------------------
+### Histogram ---------------------------------------------------------------
 
 # What is the distribution of grave pit depth?
 
@@ -596,7 +851,7 @@ burials |>
 # The distribution looks reasonable, but watch for extreme outliers
 # (values like 1500 or 2200 cm are likely typos — 150 and 220 cm)
 
-# Exercise: choose a geometry! ---------------------------------------------
+## Exercise: choose a geometry! ---------------------------------------------
 
 # Anthropologists need a count of well-preserved individuals.
 # What geometry will you choose?
@@ -610,7 +865,7 @@ burials |>
 # -> enough well-preserved skeletons, but values are inconsistent
 #    ("GOOD", "Good", "good" are treated as separate categories)
 
-# Exporting plots ---------------------------------------------------------
+## Exporting plots ---------------------------------------------------------
 
 # Anthropologists need the plot now — let's export it:
 
@@ -645,6 +900,7 @@ ggsave(
 # glimpse(burials_clean)
 # glimpse (goods)
 # 
+# PT: neviem presne ako a prečo, ale keď som spojil tabulky goods a burials, tak sa length_mm automaticky zmenila na numeric a z fragment sa stali NA 
 # goods_clean <- goods |>
 #   janitor::clean_names() |> 
 #   mutate(
@@ -663,13 +919,12 @@ ggsave(
 
 
 
-# -------------------------------------------------------------------------
+
 # BLOCK IV ----------------------------------------------------------------
-# Vít Kozák ---------------------------------------------------------------
-# -------------------------------------------------------------------------
+# Vít Kozák 
 
 
-# Scatter plot ------------------------------------------------------------
+## Scatter plot ------------------------------------------------------------
 
 # New data
 # Let´s briefly explore another basic type of plot: scatterplot 
@@ -689,11 +944,11 @@ data |>
   geom_point()
 
 
-# -------------------------------------------------------------------------
-# Plot "beautification" ---------------------------------------------------
+
+## Plot "beautification" ---------------------------------------------------
 # Making publication-ready figures from our cleaned data
 
-# Labels and titles -------------------------------------------------------
+### Labels and titles -------------------------------------------------------
 
 # labs() adds titles, axis labels, and captions
 
@@ -712,7 +967,7 @@ data |>
     caption = "Data: CAA 2026 workshop"
   )
 
-# Themes ------------------------------------------------------------------
+### Themes ------------------------------------------------------------------
 
 # Themes control the overall look (background, gridlines, fonts)
 
@@ -729,7 +984,7 @@ data |>
 
 # Other built-in themes: theme_bw(), theme_classic(), theme_light()
 
-# Colour and fill ---------------------------------------------------------
+### Colour and fill ---------------------------------------------------------
 
 # Map a variable to colour/fill to add a visual dimension
 
@@ -747,7 +1002,7 @@ data |>
 # attribute "position"
 # scale_fill_brewer() and scale_colour_manual() control palettes
 
-# Faceting ----------------------------------------------------------------
+### Faceting ----------------------------------------------------------------
 
 # Split one plot into panels by a value of categorical variable
 
@@ -762,7 +1017,7 @@ burials_clean |>
   geom_bar() +
   facet_wrap(~ age_category)
 
-# scatter plot ------------------------------------------------------------
+## scatter plot ------------------------------------------------------------
 
 
 # Let´s subset iron weapons
@@ -808,7 +1063,7 @@ iron |>
 
 
 
-# Box plot ----------------------------------------------------------------
+## Box plot ----------------------------------------------------------------
 
 data |> 
   ggplot() +
@@ -838,7 +1093,7 @@ data |> filter(depth_cm < 1000) |>
 
 
 
-# violin plot -------------------------------------------------------------
+## violin plot -------------------------------------------------------------
 
 
 data |> filter(depth_cm < 1000) |> 
@@ -870,7 +1125,7 @@ data |> filter(depth_cm < 1000) |>
   )
 
 
-# Reordering --------------------------------------------------------------
+## Reordering --------------------------------------------------------------
 # + tilting labels
 
 data |> 
@@ -889,7 +1144,7 @@ data |>
 
 
 
-# Percent stacked barchart ------------------------------------------------
+## Percent stacked barchart ------------------------------------------------
 
 data |> 
   ggplot(aes(y = supercategory, fill = material)) + 
@@ -912,7 +1167,7 @@ data |>
   
 
 
-# Plot export -------------------------------------------------------------
+## Plot export -------------------------------------------------------------
 
 ggsave(
   here::here("plots", "plotXY.png"),
@@ -925,9 +1180,9 @@ ggsave(
 
 
 
-# -------------------------------------------------------------------------
-# Time left? Lets practice with package "archdata" ------------------------
 
+
+# Time left? Lets practice with package "archdata"
 # install.packages("archdata")
 # library(archdata)
 # data(DartPoints)
