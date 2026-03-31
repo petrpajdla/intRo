@@ -254,7 +254,7 @@ ggplot(burials, aes(x = Depth_cm)) +
 # What geometry will you choose?
 
 ggplot(burials, aes(x = Preservation)) +
-  geom_bar()
+  geom_???()
 
 # -> enough well-preserved skeletons, but values are inconsistent
 #    ("GOOD", "Good", "good" are treated as separate categories)
@@ -836,31 +836,31 @@ iron <- burials_goods |>
   
   
 
-# beuatiful
 
-iron |> 
-  ggplot() +
-  aes(x = length_mm, y = weight_g, colour = artifact_type, shape = sex) +
-  geom_point(size = 2) +
-  geom_smooth(aes(group = 1), method = "lm") +
-  scale_x_continuous(
-    breaks = seq(0, 1000, by = 200),
-    limits = c(100, 900)
-  ) +
-  scale_y_continuous(
-    breaks= seq(0,1400, by = 200),
-    limits = c(100, 1450)
-  ) +
-  scale_color_brewer(palette = "Set2") + # other values - different purpose (Set2, Accent, ...) +
-  theme_bw() + 
-  # facet_wrap(~age_category) +
-  labs(title = "The relationship between length and weight",
-       subtitle = "EM knives, swords and spearheads", 
-       x = "Length (mm)",
-       y = "Weight (g)",
-       caption = "CAA 2026",
-       colour = "Weapon type",
-       shape = "Gender")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
