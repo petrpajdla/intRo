@@ -505,37 +505,37 @@ burials_clean |>
 
 # We already know function `filter()`
 
-burials_clean |> 
-  filter(preservation == "good")
+
+
 
 # For specifying conditions for filtering, dplyr uses the following logical and mathematical operators: ==, !=, <, >, >=, <=, &, |, %in%, (etc.)
 
-burials_clean |> 
-  filter(depth_cm >= 175)
+
+
 
 # PT: tejto premennej sú aj hodnoty 1500 
 
 # watch the difference between & (AND) and | (OR)
 
-burials_clean |> 
-  filter(preservation == "good" & depth_cm >= 175)
 
-burials_clean |> 
-  filter(preservation == "good" | depth_cm >= 175)
+
 
 # filtering by vector
 
-table(burials_clean$age_category)
 
-list_adults <- c("adult", "mature") 
 
-burials_clean |> 
-  filter(age_category %in% list_adults)
+
+
+
+
+
+
+
 
 # negative filtering
 
-burials_clean |> 
-  filter(preservation != "poor")
+
+
 
 ### Important ------------------------------------------------------------------
 
@@ -554,22 +554,21 @@ male_burials
 
 
 ### select() -------------------------------------------------------------------
-names(burials_clean)
 
-burials_clean |> 
-  select(grave_id, age_category, sex) |> 
-  head(4)
+
+
+
+
 
 # negative selecting
 
-burials_clean |> 
-  select(-excavation_year) |> 
-  head(4)
+
+
+
 
 # selecting variables from age_category to depth_cm
-burials_clean |> 
-  select(grave_id, age_category:depth_cm) |> 
-  head(4)
+
+
 
 ### mutate() -------------------------------------------------------------------
 
@@ -581,15 +580,16 @@ burials_clean |>
 
 # in the example below, a new column called "depth_m" is created by dividing the "depth_cm" column by 100
 
-burials_clean |> 
-  mutate(depth_m = depth_cm/100) |> 
-  head(4)
+
+
+
+
 
 # this example creates new variable "site_name" and adds value "Haithabu" to all rows
 
-burials_clean |> 
-  mutate(site_name = "Haithabu") |> 
-  head(4)
+
+
+
 
 ### mutate() and case_when() ---------------------------------------------------
 
@@ -608,16 +608,16 @@ burials_clean |>
 
 # this code returns single value - the average depth of all graves
 
-burials_clean |> 
-  summarise(mean_depth = mean(depth_cm))
+
+
 
 # it is not very helpfull so we will have a look on average depth based of sex of the buried individuals
 
-burials_clean |>
-  group_by(sex) |> 
-  summarise(mean_depth = mean(depth_cm),
-            n_graves = n()) |> 
-  arrange(n_graves)
+
+
+
+
+
 
 
 ## adding table with the artefacts ---------------------------------------------
@@ -641,7 +641,7 @@ goods <- readxl::read_xlsx("data/raw/grave_goods.xlsx")
 
 ### checking the variables -----------------------------------------------------
 
-str(goods)
+
 
 # the table goods contains information about individual artefacts found in the graves from the burials table
 # lets try to connect it with the burials table
@@ -660,17 +660,17 @@ str(burials_clean)
 # we will use the left_join() function to attach variables from the "goods" to the "burials_clean"
 # the key will be specified using the "join_by()" attribute
 
-burials_goods <- burials_clean |> 
-  left_join(goods, join_by(context == Context))
-head(burials_goods, 4)
+
+
+
 
 # the result is combined table where each burial have also variables about the artefacts
 # note that one burial can be now on more than one row and that the new table still includes burials without any artifacts
 
 # for example, grave GO19 contains 3 artifacts:
 
-burials_goods |> 
-  filter(grave_id == "G019")
+
+
 
 ### checking the new data ------------------------------------------------------
 
@@ -689,16 +689,16 @@ burials_goods <- burials_goods |>
 
 # hints: burials_goods$supercategory, filter(), group_by(), summarise()
 
-table(burials_goods$artifact_type)
 
-table(burials_goods$supercategory)
 
-female_wariors <- burials_goods |> 
-  filter(sex == "female" & supercategory == "weapons and armour") |> 
-  group_by(grave_id) |> 
-  count()
 
-head(female_wariors, 10)
+
+
+
+
+
+
+
 
 
 ### Task 2: dating--------------------------------------------------------------
