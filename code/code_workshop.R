@@ -409,7 +409,7 @@ burials_clean <- burials_clean |>
 burials_clean$depth_cm |> summary()
 
 burials_clean <- burials_clean |>
-  na.omit(depth_cm)
+  drop_na(depth_cm)
 
 
 ### Step 6: Check the result ---------------------------------------------------
