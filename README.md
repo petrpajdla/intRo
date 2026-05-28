@@ -2,7 +2,8 @@
 
 Materials and code for R workshop given at:
 
-- CAA Vienna 2026
+- ARU Praha 2026 (v1.1)
+- CAA Vienna 2026 (v1.0)
 
 ## Where to start?
 
