@@ -1,6 +1,6 @@
-# CAA 2026
+# ARU Praha 2026
 # From Zero to Plotting: R for Anyone
-# March 31
+# June 2nd
 
 # Workshop outline:
 # BLOCK I   — Environment setup & packages           (Petr Pajdla)
@@ -19,10 +19,9 @@
 # - What is your experience with R?
 
 # - What to expect from the workshop
-# - Organization - coffee breaks, lunch break
-
-# GitHub repository with code and data:
-# https://github.com/petrpajdla/intRo
+# - Why learn a bit of programming in the era of 'AI' etc.?
+# - Reproducibility and auditability...
+# - Organization - coffee breaks?, lunch break?
 
 # Stickers/Post-it method:
 # - green = everything is fine 
@@ -31,8 +30,50 @@
 # Cheat sheet with special signs and shortcuts
 # Find out how to write stuff on your keyboard!
 
+# Special signs
+# #    hashtag
+# ~    tilde
+# $    dollar sign
+# /    forward slash
+# "    double quotes, ' single quotes
+# &    ampersand
+# ;    semicolon
+# ()   parentheses (round brackets)
+# {}   curly brackets
+# []   square brackets
+# <>   angle brackets
+# |    vertical bar
+
+## Project structure -----------------------------------------------------------
+
+# TASK:
+# 0. Open RStudio (or Positron)
+# 1. In RStudio, create a new project, call it 'rintro'
+# 2. Go to your file manager/explorer into the 'rintro' folder
+# 3. Create the following folders:
+# rintro
+# |-- data
+# |   |-- raw
+# |   |-- processed
+# |-- plots
+# |-- code
+# 4. Go to GitHub repository with code and data:
+# https://github.com/petrpajdla/intRo
+# Download two scripts:
+# - code/code_full.R contains the full code with solutions
+# - code/code_workshop.R the version you will work with 
+# 5. Save the script under rintro/code/
+# 6. Go back to RStudio and open script code_workshop.R
+# 7. Have fun!
+
 
 ## Introduction to R and RStudio/Positron --------------------------------------
+
+# RStudio is an editor where R runs in a console
+# You write code in the script (a text file)
+# The code is executed (run) in a console
+# A result is shown in the console
+# The script is your record of what happened (you save it and reuse it)
 
 # R is a smart calculator
 # Use Ctrl/Cmd + Enter to run the line where your cursor is located
@@ -96,7 +137,7 @@ df
 
 View(df)
 
-# Pull columns from data frames with $ dollarsign
+# Pull columns from data frames with $ dollar sign and column name
 df$numbers
 df$letters
 
@@ -107,41 +148,39 @@ str(df)
 ?mean
 ?str
 
-## Project structure -----------------------------------------------------------
-
-# TASK: create a new project 
-
-# here::here() builds paths relative to the project root
-# This keeps paths portable across machines
-
-dir.create(here::here("data"))
-dir.create(here::here("data/raw")) 
-dir.create(here::here("data/processed"))
-dir.create(here::here("code"))
-dir.create(here::here("plots"))
-
 ## Packages --------------------------------------------------------------------
 
-# Install packages (only needed once, then comment out):
+# Installing packages is only needed once per your R installation
+# install.packages("package name")
+# Install packages in the console
+# or comment out the command install.packages() in the script
 
-# install.packages("readr")
-# install.packages("readxl")
-# install.packages("dplyr")
-# install.packages("tidyr")
-# install.packages("janitor")
-# install.packages("ggplot2")
-# install.packages("tidyverse")
+# Note:
+# In this script, we are using the following packages:
+# readr      reads and writes data from/to various text files
+# readxl     reads data from Excel sheets
+# dplyr      data transformation and manipulation
+# tidyr      data cleaning and manipulation
+# janitor    various data manipulation and helpers
+# ggplot2    data visualisation
+# tidyverse  a family grouping many packages above
 
-# Load packages (needed every session):
+install.packages("dplyr")
 
-library(readr) # reading data (.csv)
-library(readxl) # reading excel files (.xlsx)
-library(dplyr) # data manipulation
-library(tidyr) # tidying data
-library(ggplot2) # data visualisation, Grammar of Graphics
+# Let's try out one of its functions:
+# select() selects a column from a data frame based on its name
+select(df, letters)
 
-# Alternatively, load several packages at once with tidyverse:
-library(tidyverse) # includes dplyr, ggplot2, readr, tidyr etc.
+# We always need to load the package from the library to be able to use it!
+# Load a package (needed every new R session):
+
+library(dplyr)
+
+# It is common to put the library() calls at the top of your script.
+# Note: For didactic reasons, we do not stick to the rule too strictly here.
+
+# Let's try again...
+select(df, letters)
 
 
 # BLOCK II: Reading and exploring data -----------------------------------------
@@ -153,12 +192,14 @@ library(tidyverse) # includes dplyr, ggplot2, readr, tidyr etc.
 
 # Download data from
 # https://github.com/petrpajdla/intRo/blob/main/data/burials.csv
-# save it as a CSV in you working directory under /data/raw/
+# save it as a "burials.csv" in your working directory under /data/raw/burials.csv
 
-burials_url = "https://raw.githubusercontent.com/petrpajdla/intRo/refs/heads/main/data/burials.csv"
-download.file(burials_url, destfile = here::here("data/raw/burials.csv"))
+# Install package reader in the console with install.packages("readr")
+# Load the package...
+library(readr)
 
-burials <- read_csv(here::here("data/raw/burials.csv"))
+burials <- read_csv("data/raw/burials.csv")
+
 
 ## Explore data ----------------------------------------------------------------
 
@@ -169,6 +210,7 @@ head(burials, 4)
 tail(burials, 4)
 
 # Compact overview of all columns and their types
+str(burials)
 glimpse(burials)
 
 # Statistical summary of each column
@@ -198,8 +240,15 @@ distinct(burials, orientation)
 
 ## Visualisation with ggplot2 --------------------------------------------------
 
-# ggplot builds plots in layers: data + aesthetics + geometry
+# ggplot2 builds plots in layers: data + aesthetics + geometry
 # We use simple plots here to spot data problems; beautification comes later
+
+# TASK: 
+# 1. Install package ggplot2
+# 2. Load it
+
+# install.packages("ggplot2")
+library(ggplot2)
 
 ### Basics + barplot -----------------------------------------------------------
 
@@ -263,18 +312,19 @@ ggplot(burials, aes(x = Preservation)) +
 
 # Anthropologists need the plot now — let's export it:
 
-ggsave(here::here("plots", "plot1.png"))
+ggsave("plots/plot1.png")
 
 # For more control, save the plot to a variable first:
-
-p1 <- burials |>
+p_preservation <- burials |>
   ggplot(aes(x = Preservation)) +
   geom_bar()
 
-
+# It is wise to choose names that make sense and no generic names
+# Eg. plot1 is not descriptive but
+# barplot_preservation.png is self-explanatory
 ggsave(
-  here::here("plots", "plot1.png"),
-  plot = p1,
+  p_preservation,
+  filename = "plots/barplot_preservation.png",
   width = 8,
   height = 6,
   dpi = 300
@@ -296,9 +346,6 @@ ggsave(
 # 5. Depth has likely typos (1500 cm, 2200 cm — probably 150 and 220) 
 # and missing values (NAs)
 
-# Let's inspect the column names first:
-names(burials)
-
 ### Pipe operator ---------
 # Sidenote: Using the pipe operator
 # %>% (from magrittr / dplyr) or
@@ -306,7 +353,13 @@ names(burials)
 # It takes the left-hand side and passes it as the first argument to the right
 # data |> function(arg1, arg2) is the same as function(data, arg1, arg2)
 
+c(2, 3, 5, 0) |> 
+  mean()
+
 ### Step 1: Clean column names -------------------------------------------------
+
+# Let's inspect the column names first:
+names(burials)
 
 # First option: rename by hand
 burials |>
@@ -316,66 +369,77 @@ burials |>
   )
 
 # Second option: use a package janitor
+
+# TASK:
+# install and load janitor package
+# install.packages("janitor")
+library(janitor)
+
 # janitor::clean_names() converts all column names to a consistent format:
 # - lowercase
 # - spaces replaced with underscores
 # - special characters removed
 
-burials_clean <- burials |>
-  janitor::clean_names()
+burials_clean0 <- burials |>
+  clean_names()
 
 # Check names again:
-names(burials_clean)
+names(burials_clean0)
 
 # "grave id" became "grave_id" — no more backticks needed!
 
 ### Step 2: Standardise preservation -------------------------------------------
 
 # What values are in the preservation column?
-burials_clean |>
+burials_clean0 |>
   count(preservation)
 
 # We have: Fair, GOOD, Good, NA, Poor, fair, poor
 # Let's make them all lowercase using str_to_lower() from stringr
+# TASK: Install stringr
+# the package::function() shorthand allows us to use a function()
+# from a package, that is not loaded...
 
-burials_clean <- burials_clean |>
+burials_clean1 <- burials_clean0 |>
   mutate(preservation = stringr::str_to_lower(preservation))
 
 # Check the result:
-burials_clean |>
+burials_clean1 |>
   count(preservation)
 
 ### Step 3: Standardise sex ----------------------------------------------------
 
-# What values are in the sex column?
-burials_clean |>
+# What values are in the biological sex column?
+burials_clean1 |>
   count(sex)
 
 # We have: ?, F, M, NA, empty string (""), unknown
 # "?", "unknown", and "" all mean "we don't know" — let's unify them
-# Note: empty strings ("") are NOT the same as NA — case_match's
+# Note: empty strings ("") are NOT the same as NA — case_when's
 # .default = NA_character_ catches them 
 
-burials_clean <- burials_clean |>
-  mutate(
-    sex = case_match(
-      sex,
-      "F" ~ "female",
-      "M" ~ "male",
-      "?" ~ "unknown",
-      "unknown" ~ "unknown",
-      .default = NA_character_
+burials_clean2 <- burials_clean1 |>
+  mutate(# mutate edits the values of the given column
+    sex = case_when( # case_when() matches the value agains the condition
+      sex == "F" ~ "female", # "F" becomes "female"
+      sex == "M" ~ "male", # "M" becomes "male"
+      sex == "?" ~ "unknown", # "?" becomes "unknown"
+      sex == "unknown" ~ "unknown", # "?" becomes "unknown"
+      .default = NA_character_ # anything else becomes a missing value
     )
   )
 
 # Check:
-burials_clean |>
+burials_clean2 |>
   count(sex)
 
 ### Step 4: Standardise orientation --------------------------------------------
-# TODO: samostatná práce
+
+# TASK: Work on your own...
 # What values do we have?
-burials_clean |>
+# HINT: Use burials_clean2 data frame
+
+burials_clean2 |>
   count(orientation)
 
 # Mix of compass labels (E-W, N-S, W-E) and degrees (0, 180, 270, 90)
@@ -387,29 +451,31 @@ burials_clean |>
 # 180° = S-N
 # 270° = W-E
 
-burials_clean <- burials_clean |>
+burials_clean3 <- burials_clean2 |>
   mutate(
-    orientation = case_match(
-      orientation,
-      "0" ~ "N-S",
-      "90" ~ "E-W",
-      "180" ~ "S-N",
-      "270" ~ "W-E",
+    orientation = case_when(
+      orientation == "0" ~ "N-S",
+      orientation == "90" ~ "E-W",
+      orientation == "180" ~ "S-N",
+      orientation == "270" ~ "W-E",
       .default = orientation
     )
   )
 
 # Check:
-burials_clean |>
+burials_clean3 |>
   count(orientation)
 
 ### Step 5: Missing values -----------------------------------------------------
 
 # Check the distribution of depth_cm — watch for outliers and NAs
-burials_clean$depth_cm |> summary()
+burials_clean3$depth_cm |> summary()
 
-burials_clean <- burials_clean |>
-  drop_na(depth_cm)
+# TASK: Install tidyr package
+# install.packages("tidyr")
+
+burials_clean <- burials_clean3 |>
+  tidyr::drop_na(depth_cm)
 
 
 ### Step 6: Check the result ---------------------------------------------------
@@ -422,25 +488,28 @@ burials_clean$orientation |> is.na() |> sum()
 burials_clean$depth_cm |> is.na() |> sum()
 burials_clean$preservation |> is.na() |> sum()
 
-
 # Compare original vs. cleaned:
-# BEFORE:
+# column sex
 burials |> count(Sex)
-burials |> count(Preservation)
-burials |> count(orientation)
-
-# AFTER:
 burials_clean |> count(sex)
+
+# column preservation
+burials |> count(Preservation)
 burials_clean |> count(preservation)
+
+# column orientation
+burials |> count(orientation)
 burials_clean |> count(orientation)
 
 # Let's verify with a quick plot — does it look cleaner now?
-burials_clean |>
-  ggplot(aes(x = preservation)) +
+# before
+burials |> 
+  ggplot(aes(x = Preservation)) +
   geom_bar()
 
+# after
 burials_clean |>
-  ggplot(aes(x = sex)) +
+  ggplot(aes(x = preservation)) +
   geom_bar()
 
 
@@ -449,36 +518,33 @@ burials_clean |>
 ### Overview -------------------------------------------------------------------
 
 # You will learn to:
-# - select specific columns or remove them - select()
-# - create new columns and change the values based on different conditions - mutate(), case_when()
+# - select specific columns or remove them - function select()
+# - create new columns and change the values based on different conditions -
+#   functions mutate(), case_when()
 # - filter specific rows based on various conditions - filter()
 # - order your rows from lowest to highest values (or vice versa) - arrange()
-# - group your data and calculate different summary statistics - summarise(), group_by()
+# - group your data and calculate different summary statistics -
+#   functions summarise(), group_by()
 # - work with different functions more effectively with the pipe operator - |>
 
 ### dplyr package --------------------------------------------------------------
 
 # we will work with the dplyr package which uses tidy data logic 
-# (one variable = one column, one observation = one row,...)
+# ie. one variable = one column, one observation = one row
 # a major advantage of this package is its more intuitive, human-readable syntax
 
 # In Base R, the code for filtering those burials would look like this:
-
-
 burials_clean[burials_clean$preservation == "good",]
 
-
 # and this is a solution with the filter() function from the dplyr package:
-
 filter(burials_clean, preservation == "good")
 
-# Similarly, if your dataframe has too many unnecessary columns, you can select a few to make it easier to navigate.
+# Similarly, if your dataframe has too many unnecessary columns, 
+# you can select a few to make it easier to navigate.
 # This would be the solution in R Base:
-
 burials_clean[, c("grave_id", "age_category", "sex", "preservation")]
 
 # And this is done with the select() function from the dplyr package.
-
 select(burials_clean, grave_id, age_category, sex, preservation)
 
 
@@ -489,10 +555,13 @@ select(burials_clean, grave_id, age_category, sex, preservation)
 # |> native R pipe (since R 4.1)
 # It takes the left-hand side and passes it as the first argument to the right
 
-# The pipe operator |> allows you to combine various functions into one code chunk, making your code shorter and easier to read.
+# The pipe operator |> allows you to combine various functions 
+# into one code chunk, making your code shorter and easier to read.
 
 # syntax:
-#  dataframe |> function_1(variable, condition) |> function_2(variable, condition)
+# dataframe |> 
+#   function_1(variable, condition) |> 
+#   function_2(variable, condition)
 
 # You can combine functions select(), filter() and head():
 
@@ -503,20 +572,16 @@ burials_clean |>
 
 ### filter() function ----------------------------------------------------------
 
-# We already know function `filter()`
-
 burials_clean |> 
   filter(preservation == "good")
 
-# For specifying conditions for filtering, dplyr uses the following logical and mathematical operators: ==, !=, <, >, >=, <=, &, |, %in%, (etc.)
-
+# For specifying conditions for filtering, 
+# dplyr uses the following logical and mathematical operators: 
+# ==, !=, <, >, >=, <=, &, |, %in%, (etc.)
 burials_clean |> 
   filter(depth_cm >= 175)
 
-# PT: tejto premennej sú aj hodnoty 1500 
-
 # watch the difference between & (AND) and | (OR)
-
 burials_clean |> 
   filter(preservation == "good" & depth_cm >= 175)
 
@@ -524,7 +589,6 @@ burials_clean |>
   filter(preservation == "good" | depth_cm >= 175)
 
 # filtering by vector
-
 table(burials_clean$age_category)
 
 list_adults <- c("adult", "mature") 
@@ -533,23 +597,21 @@ burials_clean |>
   filter(age_category %in% list_adults)
 
 # negative filtering
-
 burials_clean |> 
   filter(preservation != "poor")
 
-### Important ------------------------------------------------------------------
-
-# This code instantly returns dataframe with male graves only, but without saving the result
+#### Note ---
+# This code instantly returns dataframe with male graves only, 
+# but without saving the result
 burials_clean |> 
   filter(sex == "male")
 
-# This code saves all male burials_clean into new dataframe "male_burial", but is not showing the result
+# This code saves all male burials_clean into new dataframe "male_burial", 
+# but is not showing the result
 male_burials <- burials_clean |> 
   filter(sex == "male")
 
-# To see the result, we need to add aditional line
-male_burials <- burials_clean |> 
-  filter(sex == "male")
+# To see the result, we need to evaluate the name of the data frame
 male_burials
 
 
@@ -561,7 +623,6 @@ burials_clean |>
   head(4)
 
 # negative selecting
-
 burials_clean |> 
   select(-excavation_year) |> 
   head(4)
@@ -577,23 +638,25 @@ burials_clean |>
 # (i.e. the new columns are functions of the original variables)
 
 # syntax:
-#   dataframe |> mutate(variable_name = function())
+# dataframe |> 
+#   mutate(variable_name = function())
 
-# in the example below, a new column called "depth_m" is created by dividing the "depth_cm" column by 100
-
+# in the example below, a new column called "depth_m" 
+# is created by dividing the "depth_cm" column by 100
 burials_clean |> 
   mutate(depth_m = depth_cm/100) |> 
   head(4)
 
-# this example creates new variable "site_name" and adds value "Haithabu" to all rows
-
+# this example creates new variable "site_name" and 
+# adds value "Haithabu" to all rows
 burials_clean |> 
   mutate(site_name = "Haithabu") |> 
   head(4)
 
 ### mutate() and case_when() ---------------------------------------------------
 
-# you can create new variables with values based on conditions in other variables
+# you can create new variables with values based on conditions 
+# in other variables
 
 burials_clean |> 
   mutate(depth_category = case_when(
@@ -605,36 +668,32 @@ burials_clean |>
 
 ### summarise() and group_by() -------------------------------------------------
 # lets say we want to know the average depth of the graves
-
 # this code returns single value - the average depth of all graves
-
 burials_clean |> 
   summarise(mean_depth = mean(depth_cm))
 
-# it is not very helpfull so we will have a look on average depth based of sex of the buried individuals
-
+# to get average depth for individuals of different sex category,
+# we need to create groups
 burials_clean |>
   group_by(sex) |> 
   summarise(mean_depth = mean(depth_cm),
             n_graves = n()) |> 
-  arrange(n_graves)
+  arrange(n_graves) |> View()
 
 
 ## adding table with the artefacts ---------------------------------------------
 
-# We just got new data from fellow archaeologists, 
+# We just got new data from fellow archaeologists 
 # which contains information about artefacts from the same burial site. 
-# our colleagues had send us the file in excel format, 
+# Our colleagues had send us the file in excel format, 
 # so now we will how to import ecxel sheets
 
 ### importing .xlsx file -------------------------------------------------------
 
+# TASK:
 # Download data from
 # https://github.com/petrpajdla/intRo/blob/main/data/grave_goods.xlsx
-# save it as XLSX in you working directory under /data/raw/
-
-goods_url = "https://github.com/petrpajdla/intRo/raw/refs/heads/main/data/grave_goods.xlsx"
-download.file(goods_url, destfile = here::here("data/raw/grave_goods.xlsx"))
+# save it as XLSX in you working directory under /data/raw/ (grave_goods.xlsx)
 
 goods <- readxl::read_xlsx("data/raw/grave_goods.xlsx")
 
@@ -643,29 +702,33 @@ goods <- readxl::read_xlsx("data/raw/grave_goods.xlsx")
 
 str(goods)
 
-# the table goods contains information about individual artefacts found in the graves from the burials table
+# the table goods contains information about 
+# individual artefacts found in the graves from the burials table
 # lets try to connect it with the burials table
 
-# first, we need to identify the key variables, that will allow us to create a relation between the two tables
-
-
+# first, we need to identify the key variables, 
+# that will allow us to create a relation between the two tables
 str(goods)
 str(burials_clean)
 
-# we see that the key variables are "Context" from the table goods and "context" from the table burials_clean
+# we see that the key variables are "Context" 
+# from the table goods and "context" from the table burials_clean
 
 
 ### left_join() ----------------------------------------------------------------
 
-# we will use the left_join() function to attach variables from the "goods" to the "burials_clean"
+# we will use the left_join() function to attach variables 
+# from the "goods" to the "burials_clean"
 # the key will be specified using the "join_by()" attribute
 
 burials_goods <- burials_clean |> 
   left_join(goods, join_by(context == Context))
 head(burials_goods, 4)
 
-# the result is combined table where each burial have also variables about the artefacts
-# note that one burial can be now on more than one row and that the new table still includes burials without any artifacts
+# the result is combined table where each burial have also 
+# variables about the artefacts
+# note that one burial can be now on more than one row and that 
+# the new table still includes burials without any artifacts
 
 # for example, grave GO19 contains 3 artifacts:
 
@@ -677,15 +740,14 @@ burials_goods |>
 str(burials_goods)
 
 ## reparing the numbers
-
 burials_goods <- burials_goods |> 
   mutate(weight_g = as.numeric(weight_g))
 
 ## TASKS! ----------------------------------------------------------------------
 
 ### Task 1: female graves with weapons -----------------------------------------
-# find out all female graves with weapons or armour and 
-# create a new table showing number of weapons in each (female) grave
+# Find out all female graves with weapons or armour and 
+# create a new table showing number of weapons in each (female) grave.
 
 # hints: burials_goods$supercategory, filter(), group_by(), summarise()
 
@@ -702,12 +764,11 @@ head(female_wariors, 10)
 
 
 ### Task 2: dating--------------------------------------------------------------
-# Try to identify any problems with the variable "dating" and propose a solution
+# Try to identify any problems with the variable "dating" and propose a solution.
 
 
 ### Task 3: relocate() ---------------------------------------------------------
-
-# what is the function "relocate()" doing here?
+# What is the function "relocate()" doing here?
 
 burials_goods |> 
   relocate(dating, .after = material) |> 
@@ -716,15 +777,16 @@ burials_goods |>
 ## Export data -----------------------------------------------------------------
 
 # Write a CSV
-write_csv(burials_clean, here::here("data/processed/burials_clean.csv")) 
+write_csv(burials_clean, "data/processed/burials_clean.csv")
 
-# Write an XLX file
-library(writexl)
-write_xlsx(burials_goods, path = here::here("data/processed/burials_goods.xlsx"))
+# Write an XLSX file
+writexl::write_xlsx(
+  burials_goods, 
+  "data/processed/burials_goods.xlsx"
+)
 
 
 # BLOCK V: Plots ---------------------------------------------------------------
-
 ## Scatter plot ----------------------------------------------------------------
 
 # New data
@@ -765,7 +827,7 @@ burials_goods |>
     title = "Sex distribution in the burial ground",
     x = "Sex",
     y = "Count",
-    caption = "Data: CAA 2026 workshop"
+    caption = "Data: Synthetic burial ground"
   )
 
 ### Themes ---------------------------------------------------------------------
@@ -858,7 +920,6 @@ iron |>
        subtitle = "EM knives, swords and spearheads", 
        x = "Length (mm)",
        y = "Weight (g)",
-       caption = "CAA 2026",
        colour = "Weapon type",
        shape = "Gender")
 
@@ -889,7 +950,6 @@ burials_goods |> filter(depth_cm < 1000) |>
        subtitle = "Early medieval graves",
        x = "Age category",
        y = "Depth (cm)",
-       caption = "CAA 2026",
        colour = "Gender"
   ) 
 
@@ -922,7 +982,6 @@ burials_goods |> filter(depth_cm < 1000) |>
        subtitle = "Early medieval graves",
        x = "Age category",
        y = "Depth (cm)",
-       caption = "CAA 2026",
        # fill = "Age category"
   )
 
@@ -954,7 +1013,7 @@ burials_goods |>
   
 
 
-burials_goods |> 
+plot_artifact_material <- burials_goods |> 
   drop_na(supercategory) |>
   drop_na(material) |> 
   ggplot(aes(y = supercategory, fill = material)) + 
@@ -962,7 +1021,7 @@ burials_goods |>
   labs(x = "Percentage",
        title = "Artifacts by material",
        subtitle = "Early medieval grave contexts",
-       caption = "CAA 2026") +
+       caption = "Synthetic burial ground") +
   scale_fill_viridis_d(option = "turbo") +
   theme_classic() +
   theme(legend.position = "right")
@@ -972,8 +1031,8 @@ burials_goods |>
 ## Plot export -----------------------------------------------------------------
 
 ggsave(
-  here::here("plots", "plotXY.png"),
-  plot = pXY,
+  "plots/plot_artifact_material.png",
+  plot = plot_artifact_material,
   width = 8,
   height = 6,
   dpi = 300
