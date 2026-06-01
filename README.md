@@ -23,6 +23,10 @@ This workshop is given by Vítek Kozák, Petr Pajdla and Peter Tkáč.
 
 This workshop is affiliated to CAA Special Interest Group on Scientific Scripting Languages in Archaeology [CAA/SSLA](https://sslarch.github.io)
 
+### Feedback
+
+If you took this workshop, please leave us any comments and feedback here: [https://forms.gle/rzJHZK7PGdMow9zV7](https://forms.gle/rzJHZK7PGdMow9zV7).
+
 ## Resources
 
 - Book [*R for Data Science*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel and Garrett Grolemund
